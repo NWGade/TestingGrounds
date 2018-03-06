@@ -72,3 +72,13 @@ void AGun::OnFire()
 	}
 
 }
+
+void AGun::SetAnimInstance(UAnimInstance * AnimInstanceToSet)
+{
+	AnimInstance = AnimInstanceToSet;
+}
+
+UAnimInstance * AGun::GetAnimInstance()
+{
+	return AnimInstance;
+}

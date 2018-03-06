@@ -41,11 +41,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class UAnimMontage* FireAnimation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-	class UAnimInstance* AnimInstance;
-protected:
-
+public:
 	/** Fires a projectile. */
 	void OnFire();
-	
+	void SetAnimInstance(UAnimInstance* AnimInstanceToSet);
+	UAnimInstance* GetAnimInstance();
+
+private:
+	class UAnimInstance* AnimInstance;
 };
