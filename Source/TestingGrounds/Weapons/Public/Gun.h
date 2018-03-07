@@ -43,8 +43,11 @@ public:
 
 public:
 	/** Fires a projectile. */
+	UFUNCTION(BlueprintCallable, Category = "Input")
 	void OnFire();
+
 	void SetAnimInstance(UAnimInstance* AnimInstanceToSet);
+
 	UAnimInstance* GetAnimInstance();
 
 private:
