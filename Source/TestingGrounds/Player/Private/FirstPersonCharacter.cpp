@@ -3,6 +3,8 @@
 #include "Player/Public/FirstPersonCharacter.h"
 #include "Weapons/Public/Gun.h"
 #include "Weapons/Public/BallProjectile.h"
+#include "Engine/World.h"
+#include "Engine/EngineTypes.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -68,6 +70,13 @@ void AFirstPersonCharacter::BeginPlay()
 	{
 		InputComponent->BindAction("Fire", IE_Pressed, Gun, &AGun::OnFire);
 	}
+}
+
+void AFirstPersonCharacter::Tick(float DeltaTime)
+{	
+	Super::Tick(DeltaTime);
+
+	AimAtCrosshair();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -154,6 +163,33 @@ void AFirstPersonCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex, con
 				TouchItem.Location = Location;
 			}
 		}
+	}
+}
+
+void AFirstPersonCharacter::AimAtCrosshair()
+{
+	FCollisionQueryParams TraceParams(FName(TEXT("VictoryBPTrace::CharacterMeshSocketTrace")), true, this);
+	TraceParams.bTraceComplex = true;
+	TraceParams.bTraceAsyncScene = false;
+	TraceParams.bReturnPhysicalMaterial = false;
+	TraceParams.AddIgnoredActor(this);
+
+	//Re-initialize hit info
+	OutHit = FHitResult(ForceInit);
+
+	//To draw a debug line in editor with the LineTrace.
+	//const FName TraceTag("MyTraceTag");
+	//GetWorld()->DebugDrawTraceTag = TraceTag;
+	//TraceParams.TraceTag = TraceTag;
+
+	if (GetWorld()->LineTraceSingleByChannel(
+		OutHit,
+		FirstPersonCameraComponent->GetComponentLocation(),
+		(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000),
+		ECC_WorldStatic,
+		TraceParams)
+		) {
+		Gun->UpdateSpawnRotation(OutHit.Location);
 	}
 }
 

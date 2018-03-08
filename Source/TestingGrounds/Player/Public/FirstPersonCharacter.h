@@ -4,6 +4,7 @@
 #include "FirstPersonCharacter.generated.h"
 
 class UInputComponent;
+struct FHitResult;
 
 UCLASS(config = Game)
 class AFirstPersonCharacter : public ACharacter
@@ -22,24 +23,32 @@ public:
 
 	virtual void BeginPlay();
 
+	virtual void Tick(float DeltaTime) override;
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-		float BaseTurnRate;
+	float BaseTurnRate;
 
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
-		float BaseLookUpRate;
+	float BaseLookUpRate;
 
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		FVector GunOffset;
+	FVector GunOffset;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gun")
-		TSubclassOf<class AGun> GunBlueprint;
+	TSubclassOf<class AGun> GunBlueprint;
+
+	FHitResult AimResult;
 
 private:
-
 	AGun * Gun;
+
+	FHitResult OutHit;
+
+private:
+	void AimAtCrosshair();
 
 protected:
 
@@ -92,5 +101,6 @@ public:
 	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
 
 };

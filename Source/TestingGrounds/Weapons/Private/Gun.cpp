@@ -29,6 +29,7 @@ void AGun::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SpawnRotation = FP_MuzzleLocation->GetComponentRotation();
 }
 
 // Called every frame
@@ -43,7 +44,6 @@ void AGun::OnFire()
 	// try and fire a projectile
 	if (ProjectileClass != NULL)
 	{
-		const FRotator SpawnRotation = FP_MuzzleLocation->GetComponentRotation();
 		// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 		const FVector SpawnLocation = FP_MuzzleLocation->GetComponentLocation();
 
@@ -81,4 +81,15 @@ void AGun::SetAnimInstance(UAnimInstance * AnimInstanceToSet)
 UAnimInstance * AGun::GetAnimInstance()
 {
 	return AnimInstance;
+}
+
+void AGun::UpdateSpawnRotation(FVector Target)
+{
+	FRotator RotationToSet = (Target - FP_MuzzleLocation->GetComponentLocation()).Rotation();
+	SpawnRotation = RotationToSet;
+}
+
+void AGun::SetDefaultSpawnRotation()
+{
+	SpawnRotation = FP_MuzzleLocation->GetComponentRotation();
 }
