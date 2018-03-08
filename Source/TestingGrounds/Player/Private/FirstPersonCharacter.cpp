@@ -177,10 +177,10 @@ void AFirstPersonCharacter::AimAtCrosshair()
 	//Re-initialize hit info
 	OutHit = FHitResult(ForceInit);
 
-	//To draw a debug line in editor with the LineTrace.
-	//const FName TraceTag("MyTraceTag");
-	//GetWorld()->DebugDrawTraceTag = TraceTag;
-	//TraceParams.TraceTag = TraceTag;
+	//To draw a debug line in editor with the LineTrace uncomment this.
+	const FName TraceTag("MyTraceTag");
+	GetWorld()->DebugDrawTraceTag = TraceTag;
+	TraceParams.TraceTag = TraceTag;
 
 	if (GetWorld()->LineTraceSingleByChannel(
 		OutHit,
@@ -190,6 +190,9 @@ void AFirstPersonCharacter::AimAtCrosshair()
 		TraceParams)
 		) {
 		Gun->UpdateSpawnRotation(OutHit.Location);
+	}
+	else {
+		Gun->UpdateSpawnRotation(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000);
 	}
 }
 
