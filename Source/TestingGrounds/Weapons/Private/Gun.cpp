@@ -51,7 +51,21 @@ void AGun::OnFire()
 		if (World != NULL)
 		{
 			// spawn the projectile at the muzzle
-			World->SpawnActor<ABallProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+			auto Projectile = World->SpawnActor<ABallProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+			
+			if (Projectile != nullptr) {
+				switch (GunOwner)
+				{
+				case EGunOwner::Player:
+					Projectile->SetProjectileOwner(EProjectileOwner::Player);
+					break;
+				case EGunOwner::NPC:
+					Projectile->SetProjectileOwner(EProjectileOwner::NPC);
+					break;
+				default:
+					break;
+				}
+			}
 		}
 	}
 
@@ -92,4 +106,14 @@ void AGun::UpdateSpawnRotation(FVector Target)
 void AGun::SetDefaultSpawnRotation()
 {
 	SpawnRotation = FP_MuzzleLocation->GetComponentRotation();
+}
+
+void AGun::SetGunOwner(EGunOwner OwnerToSet)
+{
+	GunOwner = OwnerToSet;
+}
+
+EGunOwner AGun::GetGunOwner()
+{
+	return GunOwner;
 }

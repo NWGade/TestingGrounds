@@ -22,13 +22,54 @@ ABallProjectile::ABallProjectile()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 0.f; //3000.f; 
+	ProjectileMovement->InitialSpeed = 3000.f; 
 	ProjectileMovement->MaxSpeed = 3000.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+
+	// Set the tag for the projectile
+	ProjectileOwner = EProjectileOwner::None;
+}
+
+void ABallProjectile::BeginPlay()
+{
+	// Call the base class  
+	Super::BeginPlay();
+
+	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ABallProjectile::OnBeginOverlap);		// set up a notification for when this component overlaps something. Doing it here because OnComponentBeginOverlap.AddDynamic can't work at constructor time (but OnComponentHit can...)
+}
+
+void ABallProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor!=nullptr && OtherActor->ActorHasTag("Player")) {
+		switch (ProjectileOwner)
+		{
+		case EProjectileOwner::Player:
+			Destroy();
+			break;
+		case EProjectileOwner::NPC:
+			Destroy();
+			break;
+		case EProjectileOwner::None:
+			break;
+		default:
+			break;
+		}
+	}
+	return;
+}
+
+EProjectileOwner ABallProjectile::GetProjectileOwner()
+{
+	return ProjectileOwner;
+}
+
+void ABallProjectile::SetProjectileOwner(EProjectileOwner OwnerToSet)
+{
+	ProjectileOwner = OwnerToSet;
 }
 
 void ABallProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

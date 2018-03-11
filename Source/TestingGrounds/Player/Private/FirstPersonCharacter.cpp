@@ -64,6 +64,7 @@ void AFirstPersonCharacter::BeginPlay()
 	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
 	Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint")); 
 	Gun->SetAnimInstance(Mesh1P->GetAnimInstance());
+	Gun->SetGunOwner(EGunOwner::Player);
 
 	//Setting the player input for 'Fire' here because the Gun is not yet created in the SetupPlayerInputComponent method.
 	if (EnableTouchscreenMovement(InputComponent) == false)
@@ -177,10 +178,10 @@ void AFirstPersonCharacter::AimAtCrosshair()
 	//Re-initialize hit info
 	OutHit = FHitResult(ForceInit);
 
-	//To draw a debug line in editor with the LineTrace uncomment this.
-	const FName TraceTag("MyTraceTag");
-	GetWorld()->DebugDrawTraceTag = TraceTag;
-	TraceParams.TraceTag = TraceTag;
+	//To draw a debug line in editor with the LineTrace.
+	//const FName TraceTag("MyTraceTag");
+	//GetWorld()->DebugDrawTraceTag = TraceTag;
+	//TraceParams.TraceTag = TraceTag;
 
 	if (GetWorld()->LineTraceSingleByChannel(
 		OutHit,
@@ -190,9 +191,6 @@ void AFirstPersonCharacter::AimAtCrosshair()
 		TraceParams)
 		) {
 		Gun->UpdateSpawnRotation(OutHit.Location);
-	}
-	else {
-		Gun->UpdateSpawnRotation(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000);
 	}
 }
 

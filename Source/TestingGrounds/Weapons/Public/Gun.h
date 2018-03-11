@@ -6,6 +6,13 @@
 #include "GameFramework/Actor.h"
 #include "Gun.generated.h"
 
+UENUM(BlueprintType)
+enum class EGunOwner : uint8
+{
+	Player = 1 UMETA(DisplayName = "Player"),
+	NPC = 2 UMETA(DisplayName = "NPC")
+};
+
 UCLASS()
 class TESTINGGROUNDS_API AGun : public AActor
 {
@@ -31,15 +38,18 @@ public:
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class ABallProjectile> ProjectileClass;
+	TSubclassOf<class ABallProjectile> ProjectileClass;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		class USoundBase* FireSound;
+	class USoundBase* FireSound;
 
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		class UAnimMontage* FireAnimation;
+	class UAnimMontage* FireAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
+	EGunOwner GunOwner;
 
 public:
 	/** Fires a projectile. */
@@ -53,7 +63,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SetDefaultSpawnRotation();
 
+	UFUNCTION(BlueprintCallable, Category = "Gun")
+	void SetGunOwner(EGunOwner OwnerToSet);
+
+	EGunOwner GetGunOwner();
+
 private:
 	class UAnimInstance* AnimInstance;
 	FRotator SpawnRotation;
+
+
 };
