@@ -79,6 +79,8 @@ public:
 
 	void SetAnimInstance(UAnimInstance* AnimInstanceToSet);
 	UAnimInstance* GetAnimInstance();
+
+	UFUNCTION(BlueprintCallable, Category = "Aiming")
 	void AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripPoint);
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
