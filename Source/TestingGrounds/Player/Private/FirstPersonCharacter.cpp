@@ -190,10 +190,10 @@ void AFirstPersonCharacter::AimAtCrosshair()
 		ECC_WorldStatic,
 		TraceParams)
 		) {
-		Gun->UpdateSpawnRotation(OutHit.Location);
+		Gun->AimGunAtTarget(OutHit.Location);
 	}
 	else {
-		Gun->UpdateSpawnRotation(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000);
+		Gun->AimGunAtTarget(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000);
 	}
 }
 

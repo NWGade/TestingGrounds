@@ -56,13 +56,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
 	EGunOwner GunOwner;
 
-	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Aiming)
-	float BaseYawRate;
-
-	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Aiming)
-	float BasePitchRate;
+	/** Height of the canon by comparison to the grip point. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
+	float CanonOffset;
 
 public:
 	/** Fires a projectile. */
@@ -71,7 +67,7 @@ public:
 
 	void SetAnimInstance(UAnimInstance* AnimInstanceToSet);
 	UAnimInstance* GetAnimInstance();
-	void UpdateSpawnRotation(FVector Target);
+	void AimGunAtTarget(FVector Target);
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SetDefaultSpawnRotation();
@@ -84,5 +80,5 @@ public:
 private:
 	class UAnimInstance* AnimInstance;
 	FRotator SpawnRotation;
-	void AimGunAtRate(FVector Target, float Rate);
+	void PointGunAtTarget(FVector Target);
 };

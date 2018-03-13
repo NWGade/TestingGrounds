@@ -10,10 +10,6 @@
 // Sets default values
 AGun::AGun()
 {
-	// set our turn rates
-	BaseYawRate = 45.f;
-	BasePitchRate = 45.f;
-
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -32,6 +28,9 @@ AGun::AGun()
 	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	FP_MuzzleLocation->SetupAttachment(FP_Gun);
 	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
+
+	//Set Canon height offset
+	CanonOffset = 11.4f;
 }
 
 // Called when the game starts or when spawned
@@ -100,11 +99,11 @@ void AGun::OnFire()
 
 }
 
-void AGun::AimGunAtRate(FVector Target, float Rate)
+void AGun::PointGunAtTarget(FVector Target)
 {
 	// calculate delta for this frame from the rate information
 	//AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-	FQuat AimingQuat = (Target - FP_Gun_Root->GetComponentLocation()).ToOrientationQuat();
+	FQuat AimingQuat = (Target - (FP_Gun_Root->GetComponentLocation() + FP_Gun_Root->GetUpVector()*CanonOffset)).ToOrientationQuat();
 	FP_Gun_Root->SetWorldRotation(AimingQuat);
 
 	FHitResult OutHit;
@@ -134,9 +133,9 @@ UAnimInstance * AGun::GetAnimInstance()
 	return AnimInstance;
 }
 
-void AGun::UpdateSpawnRotation(FVector Target)
+void AGun::AimGunAtTarget(FVector Target)
 {
-	AimGunAtRate(Target, BasePitchRate);
+	PointGunAtTarget(Target);
 	FRotator RotationToSet = (Target - FP_MuzzleLocation->GetComponentLocation()).Rotation();
 	SpawnRotation = RotationToSet;
 }
