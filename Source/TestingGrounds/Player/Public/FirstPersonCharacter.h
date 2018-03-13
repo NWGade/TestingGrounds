@@ -40,6 +40,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Gun")
 	TSubclassOf<class AGun> GunBlueprint;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gun")
+	FVector SecondGripPoint;
+
 	FHitResult AimResult;
 
 private:
@@ -48,7 +51,7 @@ private:
 	FHitResult OutHit;
 
 private:
-	void AimAtCrosshair();
+	void AimAtCrosshair(float DeltaTime);
 
 protected:
 

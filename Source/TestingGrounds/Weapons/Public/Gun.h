@@ -21,6 +21,10 @@ class TESTINGGROUNDS_API AGun : public AActor
 
 	/** Root location of the gun to use for transforms. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	class USceneComponent* FP_Root;
+
+	/** Root location of the gun to use for transforms. */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	class USceneComponent* FP_Gun_Root;
 
 	/** Gun mesh: 1st person view (seen only by self) */
@@ -30,6 +34,10 @@ class TESTINGGROUNDS_API AGun : public AActor
 	/** Location on gun mesh where projectiles should spawn. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	class USceneComponent* FP_MuzzleLocation;
+
+	/** Location on gun mesh where projectiles should spawn. */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	class USceneComponent* FP_SecondGripPointLocation;
 
 public:
 	// Sets default values for this actor's properties
@@ -60,6 +68,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
 	float CanonOffset;
 
+	/** Speed of the rotation when adapting the direction pointed by the gun to aim at target (this is purely graphical). */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
+	float RotationSpeed;
+
 public:
 	/** Fires a projectile. */
 	UFUNCTION(BlueprintCallable, Category = "Input")
@@ -67,7 +79,7 @@ public:
 
 	void SetAnimInstance(UAnimInstance* AnimInstanceToSet);
 	UAnimInstance* GetAnimInstance();
-	void AimGunAtTarget(FVector Target);
+	void AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripPoint);
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SetDefaultSpawnRotation();
@@ -80,5 +92,4 @@ public:
 private:
 	class UAnimInstance* AnimInstance;
 	FRotator SpawnRotation;
-	void PointGunAtTarget(FVector Target);
 };

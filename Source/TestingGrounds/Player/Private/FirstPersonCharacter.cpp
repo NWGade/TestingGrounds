@@ -46,6 +46,9 @@ AFirstPersonCharacter::AFirstPersonCharacter()
 	// Default offset from the character location for projectiles to spawn
 	GunOffset = FVector(100.0f, 30.0f, 10.0f);
 
+	// Default Second grip point for gun
+	SecondGripPoint = FVector(-35.f,8.f,3.f);
+
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P are set in the
 	// derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
@@ -77,7 +80,7 @@ void AFirstPersonCharacter::Tick(float DeltaTime)
 {	
 	Super::Tick(DeltaTime);
 
-	AimAtCrosshair();
+	AimAtCrosshair(DeltaTime);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -167,7 +170,7 @@ void AFirstPersonCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex, con
 	}
 }
 
-void AFirstPersonCharacter::AimAtCrosshair()
+void AFirstPersonCharacter::AimAtCrosshair(float DeltaTime)
 {
 	FCollisionQueryParams TraceParams(FName(TEXT("VictoryBPTrace::CharacterMeshSocketTrace")), true, this);
 	TraceParams.bTraceComplex = true;
@@ -190,10 +193,10 @@ void AFirstPersonCharacter::AimAtCrosshair()
 		ECC_WorldStatic,
 		TraceParams)
 		) {
-		Gun->AimGunAtTarget(OutHit.Location);
+		Gun->AimGunAtTarget(OutHit.Location, DeltaTime, SecondGripPoint);
 	}
 	else {
-		Gun->AimGunAtTarget(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000);
+		Gun->AimGunAtTarget(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000, DeltaTime, SecondGripPoint);
 	}
 }
 
