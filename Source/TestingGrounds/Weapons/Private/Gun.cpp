@@ -5,18 +5,28 @@
 #include "Animation/AnimInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
+#include "Math/Quat.h"
 
 // Sets default values
 AGun::AGun()
 {
+	// set our turn rates
+	BaseYawRate = 45.f;
+	BasePitchRate = 45.f;
+
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Create empty root component to use for transforms
+	FP_Gun_Root = CreateDefaultSubobject<USceneComponent>(TEXT("FP_Gun_Root"));
+
 	// Create a gun mesh component
 	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
+	FP_Gun->SetupAttachment(FP_Gun_Root);
 	FP_Gun->SetOnlyOwnerSee(false);
 	FP_Gun->bCastDynamicShadow = false;
 	FP_Gun->CastShadow = false;
+
 	// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
 
 	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
@@ -62,6 +72,9 @@ void AGun::OnFire()
 				case EGunOwner::NPC:
 					Projectile->SetProjectileOwner(EProjectileOwner::NPC);
 					break;
+				case EGunOwner::None:
+					Projectile->SetProjectileOwner(EProjectileOwner::None);
+					break;
 				default:
 					break;
 				}
@@ -87,6 +100,30 @@ void AGun::OnFire()
 
 }
 
+void AGun::AimGunAtRate(FVector Target, float Rate)
+{
+	// calculate delta for this frame from the rate information
+	//AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	FQuat AimingQuat = (Target - FP_Gun_Root->GetComponentLocation()).ToOrientationQuat();
+	FP_Gun_Root->SetWorldRotation(AimingQuat);
+
+	FHitResult OutHit;
+	FCollisionQueryParams TraceParams(FName(TEXT("VictoryBPTrace::CharacterMeshSocketTrace")), true, this);
+	TraceParams.bTraceComplex = true;
+	TraceParams.bTraceAsyncScene = false;
+	TraceParams.bReturnPhysicalMaterial = false;
+	TraceParams.AddIgnoredActor(this);
+	const FName TraceTag("MyTraceTag");
+	GetWorld()->DebugDrawTraceTag = TraceTag;
+	TraceParams.TraceTag = TraceTag;
+	GetWorld()->LineTraceSingleByChannel(
+		OutHit,
+		FP_Gun_Root->GetComponentLocation(),
+		FP_Gun_Root->GetComponentLocation() + FP_Gun_Root->GetForwardVector()*50000,
+		ECC_WorldStatic,
+		TraceParams);
+}
+
 void AGun::SetAnimInstance(UAnimInstance * AnimInstanceToSet)
 {
 	AnimInstance = AnimInstanceToSet;
@@ -99,6 +136,7 @@ UAnimInstance * AGun::GetAnimInstance()
 
 void AGun::UpdateSpawnRotation(FVector Target)
 {
+	AimGunAtRate(Target, BasePitchRate);
 	FRotator RotationToSet = (Target - FP_MuzzleLocation->GetComponentLocation()).Rotation();
 	SpawnRotation = RotationToSet;
 }

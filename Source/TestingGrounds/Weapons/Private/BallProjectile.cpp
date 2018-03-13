@@ -75,10 +75,29 @@ void ABallProjectile::SetProjectileOwner(EProjectileOwner OwnerToSet)
 void ABallProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	// Only add impulse and destroy projectile if we hit a physics
-	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
+	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) )
 	{
-		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+		if (OtherActor->ActorHasTag("Player") || OtherActor->ActorHasTag("NPC")) {
+			switch (ProjectileOwner)
+			{
+			case EProjectileOwner::Player:
+				Destroy();
+				break;
+			case EProjectileOwner::NPC:
+				Destroy();
+				break;
+			case EProjectileOwner::None:
+				break;
+			default:
+				break;
+			}
+			return;
+		}
 
-		Destroy();
+		if (OtherComp->IsSimulatingPhysics()) {
+			OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+			Destroy();
+			return;
+		}
 	}
 }

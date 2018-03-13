@@ -192,6 +192,9 @@ void AFirstPersonCharacter::AimAtCrosshair()
 		) {
 		Gun->UpdateSpawnRotation(OutHit.Location);
 	}
+	else {
+		Gun->UpdateSpawnRotation(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000);
+	}
 }
 
 void AFirstPersonCharacter::MoveForward(float Value)
