@@ -36,7 +36,7 @@ class TESTINGGROUNDS_API AGun : public AActor
 	class USceneComponent* FP_MuzzleLocation;
 
 	/** Location on gun mesh where projectiles should spawn. */
-	UPROPERTY(EditAnywhere, Category = Mesh)
+	UPROPERTY(EditAnywhere, Category = "Mesh")
 	class USceneComponent* FP_SecondGripPointLocation;
 
 public:
@@ -92,6 +92,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Gun")
 	void SetGunOwner(EGunOwner OwnerToSet);
+
+	UFUNCTION(BlueprintCallable, Category = "Gun")
+	void SetSecondGripPointLocation(FVector LocationToSet);
+
+	UFUNCTION(BlueprintCallable, Category = "Gun")
+	void RefreshBaseLeftHandRotation();
 
 	EGunOwner GetGunOwner();
 
