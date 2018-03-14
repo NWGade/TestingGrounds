@@ -36,7 +36,7 @@ class TESTINGGROUNDS_API AGun : public AActor
 	class USceneComponent* FP_MuzzleLocation;
 
 	/** Location on gun mesh where projectiles should spawn. */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	UPROPERTY(EditAnywhere, Category = Mesh)
 	class USceneComponent* FP_SecondGripPointLocation;
 
 public:
@@ -72,6 +72,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
 	float RotationSpeed;
 
+	/** Retrieve Idle rotation of the left hand in Idle animation to grip the hand correctly to the gun. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
+	FRotator LeftHandIdleRotation;
+		
 public:
 	/** Fires a projectile. */
 	UFUNCTION(BlueprintCallable, Category = "Input")
@@ -81,7 +85,7 @@ public:
 	UAnimInstance* GetAnimInstance();
 
 	UFUNCTION(BlueprintCallable, Category = "Aiming")
-	void AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripPoint);
+	void AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripPointLoc, FRotator & SecondGripPointRot);
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SetDefaultSpawnRotation();
@@ -94,4 +98,6 @@ public:
 private:
 	class UAnimInstance* AnimInstance;
 	FRotator SpawnRotation;
+
+	FRotator BaseLeftHandRotation;
 };

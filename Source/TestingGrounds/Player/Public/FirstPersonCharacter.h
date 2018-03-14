@@ -40,8 +40,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Gun")
 	TSubclassOf<class AGun> GunBlueprint;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gun")
-	FVector SecondGripPoint;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gun")
+	FVector SecondGripPointLoc;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gun")
+	FRotator SecondGripPointRot;
 
 	FHitResult AimResult;
 

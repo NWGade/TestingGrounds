@@ -42,6 +42,15 @@ AGun::AGun()
 
 	//Set the rotation speed when pointing gun at target
 	RotationSpeed = 10.f;
+
+	LeftHandIdleRotation = FRotator(-16.466131f, -22.351046f, -155.392334f);
+
+	//Set the base rotation of the left hand for code assisted animation
+	BaseLeftHandRotation = LeftHandIdleRotation - FVector(
+		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (-this->GetActorRightVector()),
+		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorForwardVector()),
+		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorUpVector()))
+		.ToOrientationRotator();
 }
 
 // Called when the game starts or when spawned
@@ -119,15 +128,24 @@ UAnimInstance * AGun::GetAnimInstance()
 	return AnimInstance;
 }
 
-void AGun::AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripPoint)
+void AGun::AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripPointLoc, FRotator & SecondGripPointRot)
 {
 	//Progressively rotates the gun to point at the target on crosshair.
 	FRotator AimingRotator = (Target - (FP_Gun_Root->GetComponentLocation() + FP_Gun_Root->GetUpVector()*CanonOffset)).ToOrientationRotator();
 	FP_Gun_Root->SetWorldRotation(FMath::RInterpTo(FP_Gun_Root->GetComponentRotation(), AimingRotator, DeltaTime, RotationSpeed));
-	SecondGripPoint = FVector(
+	
+	SecondGripPointLoc = FVector(
 		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (-this->GetActorRightVector()),
 		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorForwardVector()),
 		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorUpVector()));
+		
+	SecondGripPointRot = SecondGripPointLoc.ToOrientationRotator() + BaseLeftHandRotation;
+	SecondGripPointRot.Roll += FP_Gun_Root->RelativeRotation.Roll;
+	UE_LOG(LogTemp, Warning, TEXT("SGPRot + base = %s"), *(SecondGripPointRot.ToString()));
+	UE_LOG(LogTemp, Warning, TEXT("FPSGGPL_Roll = %f"), (FP_SecondGripPointLocation->RelativeRotation.Roll));
+	UE_LOG(LogTemp, Warning, TEXT("FPG_Roll = %f"), (FP_Gun->RelativeRotation.Roll));
+	UE_LOG(LogTemp, Warning, TEXT("FPGR_Roll = %f"), (FP_Gun_Root->RelativeRotation.Roll));
+	UE_LOG(LogTemp, Warning, TEXT("FPA_Roll = %f"), (this->GetActorRotation().Roll));
 
 	//Update the rotation of the spawning point of projectiles to hit the target at crosshair.
 	FRotator RotationToSet = (Target - FP_MuzzleLocation->GetComponentLocation()).Rotation();

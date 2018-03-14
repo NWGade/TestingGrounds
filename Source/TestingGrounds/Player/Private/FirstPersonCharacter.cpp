@@ -47,7 +47,8 @@ AFirstPersonCharacter::AFirstPersonCharacter()
 	GunOffset = FVector(100.0f, 30.0f, 10.0f);
 
 	// Default Second grip point for gun
-	SecondGripPoint = FVector(-35.f,8.f,3.f);
+	SecondGripPointLoc = FVector(-35.f,8.f,3.f);
+	SecondGripPointRot = FRotator(0.f, 0.f, 0.f);
 
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P are set in the
 	// derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -193,10 +194,10 @@ void AFirstPersonCharacter::AimAtCrosshair(float DeltaTime)
 		ECC_WorldStatic,
 		TraceParams)
 		) {
-		Gun->AimGunAtTarget(OutHit.Location, DeltaTime, SecondGripPoint);
+		Gun->AimGunAtTarget(OutHit.Location, DeltaTime, SecondGripPointLoc, SecondGripPointRot);
 	}
 	else {
-		Gun->AimGunAtTarget(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000, DeltaTime, SecondGripPoint);
+		Gun->AimGunAtTarget(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000, DeltaTime, SecondGripPointLoc, SecondGripPointRot);
 	}
 }
 
