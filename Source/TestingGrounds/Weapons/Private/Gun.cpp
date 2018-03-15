@@ -131,13 +131,7 @@ void AGun::AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripP
 	FRotator AimingRotator = (Target - (FP_Gun_Root->GetComponentLocation() + FP_Gun_Root->GetUpVector()*CanonOffset)).ToOrientationRotator();
 	FP_Gun_Root->SetWorldRotation(FMath::RInterpTo(FP_Gun_Root->GetComponentRotation(), AimingRotator, DeltaTime, RotationSpeed));
 	
-	SecondGripPointLoc = FVector(
-		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (-this->GetActorRightVector()),
-		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorForwardVector()),
-		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorUpVector()));
-		
-	SecondGripPointRot = SecondGripPointLoc.ToOrientationRotator() + BaseLeftHandRotation;
-	SecondGripPointRot.Roll += FP_Gun_Root->RelativeRotation.Roll;
+	SetSecondGripPointLocAndRot(SecondGripPointLoc, SecondGripPointRot);
 
 	//Update the rotation of the spawning point of projectiles to hit the target at crosshair.
 	FRotator RotationToSet = (Target - FP_MuzzleLocation->GetComponentLocation()).Rotation();
@@ -159,6 +153,17 @@ void AGun::AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripP
 	//	FP_Gun_Root->GetComponentLocation() + FP_Gun_Root->GetUpVector()*CanonOffset,
 	//	ECC_WorldStatic,
 	//	TraceParams);
+}
+
+void AGun::SetSecondGripPointLocAndRot(FVector & SecondGripPointLoc, FRotator & SecondGripPointRot)
+{
+	SecondGripPointLoc = FVector(
+		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (-this->GetActorRightVector()),
+		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorForwardVector()),
+		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorUpVector()));
+
+	SecondGripPointRot = SecondGripPointLoc.ToOrientationRotator() + BaseLeftHandRotation;
+	SecondGripPointRot.Roll += FP_Gun_Root->RelativeRotation.Roll;
 }
 
 void AGun::SetDefaultSpawnRotation()

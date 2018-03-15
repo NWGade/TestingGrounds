@@ -87,6 +87,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Aiming")
 	void AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripPointLoc, FRotator & SecondGripPointRot);
 
+	UFUNCTION(BlueprintCallable, Category = "Gun")
+	void SetSecondGripPointLocAndRot(FVector & SecondGripPointLoc, FRotator & SecondGripPointRot);
+
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SetDefaultSpawnRotation();
 
