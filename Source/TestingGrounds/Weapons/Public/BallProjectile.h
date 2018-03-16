@@ -47,7 +47,17 @@ public:
 
 	void SetProjectileOwner(EProjectileOwner OwnerToSet);
 
+	void SetProjectileOwnerActor(AActor* ActorToSet);
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Projectile")
+	float BaseDamage;
+
 private:
 	EProjectileOwner ProjectileOwner;
+
+	AActor* ProjectileOwnerActor;
+
+	TSubclassOf<class UDamageType> BallDamageTypeBlueprint;
 };
 

@@ -3,6 +3,8 @@
 #include "Weapons/Public/BallProjectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Weapons/Public/BallDamageType.h"
 
 ABallProjectile::ABallProjectile() 
 {
@@ -32,6 +34,9 @@ ABallProjectile::ABallProjectile()
 
 	// Set the tag for the projectile
 	ProjectileOwner = EProjectileOwner::None;
+
+	//Set the base damage
+	BaseDamage = 10.f;
 }
 
 void ABallProjectile::BeginPlay()
@@ -72,15 +77,37 @@ void ABallProjectile::SetProjectileOwner(EProjectileOwner OwnerToSet)
 	ProjectileOwner = OwnerToSet;
 }
 
+void ABallProjectile::SetProjectileOwnerActor(AActor * ActorToSet)
+{
+	ProjectileOwnerActor = ActorToSet;
+}
+
 void ABallProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) )
 	{
-		if (OtherActor->ActorHasTag("Player") || OtherActor->ActorHasTag("NPC")) {
+		if (OtherActor->ActorHasTag("Player")) {
 			switch (ProjectileOwner)
 			{
 			case EProjectileOwner::Player:
+				Destroy();
+				break;
+			case EProjectileOwner::NPC:
+				UGameplayStatics::ApplyPointDamage(OtherActor, BaseDamage, Hit.ImpactNormal, Hit, OtherActor->GetInstigatorController(), ProjectileOwnerActor, BallDamageTypeBlueprint);
+				Destroy();
+				break;
+			case EProjectileOwner::None:
+				break;
+			default:
+				break;
+			}
+			return;
+		}
+		if (OtherActor->ActorHasTag("NPC")) {
+			switch (ProjectileOwner)
+			{
+			case EProjectileOwner::Player:
+				UGameplayStatics::ApplyPointDamage(OtherActor, BaseDamage, Hit.ImpactNormal, Hit, OtherActor->GetInstigatorController(), ProjectileOwnerActor, BallDamageTypeBlueprint);
 				Destroy();
 				break;
 			case EProjectileOwner::NPC:
@@ -94,6 +121,7 @@ void ABallProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 			return;
 		}
 
+		// Only add impulse and destroy projectile if we hit a physics
 		if (OtherComp->IsSimulatingPhysics()) {
 			OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 			Destroy();

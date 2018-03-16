@@ -83,12 +83,15 @@ void AGun::OnFire()
 				{
 				case EGunOwner::Player:
 					Projectile->SetProjectileOwner(EProjectileOwner::Player);
+					Projectile->SetProjectileOwnerActor(GetParentActor());
 					break;
 				case EGunOwner::NPC:
 					Projectile->SetProjectileOwner(EProjectileOwner::NPC);
+					Projectile->SetProjectileOwnerActor(GetParentActor());
 					break;
 				case EGunOwner::None:
 					Projectile->SetProjectileOwner(EProjectileOwner::None);
+					Projectile->SetProjectileOwnerActor(GetParentActor());
 					break;
 				default:
 					break;
