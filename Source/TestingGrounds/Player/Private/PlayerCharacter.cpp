@@ -42,6 +42,9 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//Set the tag player on itself
+	this->Tags.Add("Player");
+
 	if (FirstPersonCharacterBlueprint == NULL) {
 		UE_LOG(LogTemp, Warning, TEXT("FirstPersonCharacter blueprint missing."));
 	}
@@ -49,7 +52,6 @@ void APlayerCharacter::BeginPlay()
 		FirstPersonCharacter = GetWorld()->SpawnActor<AFirstPersonCharacter>(FirstPersonCharacterBlueprint);
 		FirstPersonCharacter->AttachToComponent(FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 		FirstPersonCharacter->SetActorRelativeLocation(-FVector(-39.56f, 1.75f, 64.f));
-		FirstPersonCharacter->Tags.Add("Player");
 	}
 
 	//if (ThirdPersonCharacterBlueprint == NULL) {
@@ -69,6 +71,13 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void APlayerCharacter::Landed(const FHitResult & Hit)
+{
+	Super::Landed(Hit);
+
+	this->MakeNoise(1.f, this, this->GetActorLocation());
 }
 
 //////////////////////////////////////////////////////////////////////////
