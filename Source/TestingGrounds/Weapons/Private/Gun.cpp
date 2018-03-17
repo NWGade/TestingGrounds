@@ -35,19 +35,13 @@ AGun::AGun()
 	// Create a muzzle scene component
 	FP_SecondGripPointLocation = CreateDefaultSubobject<USceneComponent>(TEXT("SecondGripPointLocation"));
 	FP_SecondGripPointLocation->SetupAttachment(FP_Gun);
-	FP_SecondGripPointLocation->SetRelativeLocation(FVector(11.f, 35.f, 2.f));
+	FP_SecondGripPointLocation->SetRelativeLocation(FVector(13.4f, 36.f, 2.3f));
 
 	//Set Canon height offset
 	CanonOffset = 11.4f;
 
 	//Set the rotation speed when pointing gun at target
 	RotationSpeed = 10.f;
-
-	//Set variable to the Idle Animation hand rotation to match code assisted animtion and animation
-	LeftHandIdleRotation = FRotator(-16.466131f, -22.351046f, -155.392334f);
-
-	//Set the base rotation of the left hand for code assisted animation
-	RefreshBaseLeftHandRotation();
 }
 
 // Called when the game starts or when spawned
@@ -56,6 +50,9 @@ void AGun::BeginPlay()
 	Super::BeginPlay();
 
 	SpawnRotation = FP_MuzzleLocation->GetComponentRotation();
+
+	//Set the base rotation of the left hand for code assisted animation
+	RefreshBaseLeftHandRotation();
 }
 
 // Called every frame
@@ -128,13 +125,13 @@ UAnimInstance * AGun::GetAnimInstance()
 	return AnimInstance;
 }
 
-void AGun::AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripPointLoc, FRotator & SecondGripPointRot)
+void AGun::AimGunAtTarget(FVector Target, float DeltaTime, FVector ForwardDirection, FVector & SecondGripPointLoc, FRotator & SecondGripPointRot)
 {
 	//Progressively rotates the gun to point at the target on crosshair.
 	FRotator AimingRotator = (Target - (FP_Gun_Root->GetComponentLocation() + FP_Gun_Root->GetUpVector()*CanonOffset)).ToOrientationRotator();
 	FP_Gun_Root->SetWorldRotation(FMath::RInterpTo(FP_Gun_Root->GetComponentRotation(), AimingRotator, DeltaTime, RotationSpeed));
 	
-	SetSecondGripPointLocAndRot(SecondGripPointLoc, SecondGripPointRot);
+	SetSecondGripPointLocAndRot(ForwardDirection, SecondGripPointLoc, SecondGripPointRot);
 
 	//Update the rotation of the spawning point of projectiles to hit the target at crosshair.
 	FRotator RotationToSet = (Target - FP_MuzzleLocation->GetComponentLocation()).Rotation();
@@ -158,15 +155,23 @@ void AGun::AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripP
 	//	TraceParams);
 }
 
-void AGun::SetSecondGripPointLocAndRot(FVector & SecondGripPointLoc, FRotator & SecondGripPointRot)
+void AGun::SetSecondGripPointLocAndRot(FVector ForwardDirection, FVector & SecondGripPointLoc, FRotator & SecondGripPointRot)
 {
 	SecondGripPointLoc = FVector(
 		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (-this->GetActorRightVector()),
 		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorForwardVector()),
 		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorUpVector()));
 
-	SecondGripPointRot = SecondGripPointLoc.ToOrientationRotator() + BaseLeftHandRotation;
-	SecondGripPointRot.Roll += FP_Gun_Root->RelativeRotation.Roll;
+	//FRotator(Pitch, Yaw, Roll) | (Y,Z,X)
+	SecondGripPointRot = FRotator(
+		-(FP_Gun_Root->GetForwardVector().ToOrientationRotator() - this->GetActorRotation() - BaseLeftHandRotation).Yaw,
+		0.f,
+		(FP_Gun_Root->GetForwardVector().ToOrientationRotator() - ForwardDirection.ToOrientationRotator() - BaseLeftHandRotation).Pitch);
+	SecondGripPointRot.Yaw -= FP_Gun_Root->RelativeRotation.Roll;
+
+	if (GunOwner == EGunOwner::Player) {
+		UE_LOG(LogTemp, Warning, TEXT("SGPRot: %s"), *(FP_Gun_Root->RelativeRotation.ToString()));
+	}
 }
 
 void AGun::SetDefaultSpawnRotation()
@@ -192,9 +197,5 @@ EGunOwner AGun::GetGunOwner()
 
 void AGun::RefreshBaseLeftHandRotation()
 {
-	BaseLeftHandRotation = LeftHandIdleRotation - FVector(
-		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (-this->GetActorRightVector()),
-		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorForwardVector()),
-		(FP_SecondGripPointLocation->GetComponentLocation() - this->GetActorLocation()) | (this->GetActorUpVector()))
-		.ToOrientationRotator();
+	BaseLeftHandRotation = FP_Gun_Root->GetForwardVector().ToOrientationRotator() - this->GetActorRotation();
 }

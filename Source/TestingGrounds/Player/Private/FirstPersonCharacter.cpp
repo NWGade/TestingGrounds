@@ -194,10 +194,10 @@ void AFirstPersonCharacter::AimAtCrosshair(float DeltaTime)
 		ECC_WorldStatic,
 		TraceParams)
 		) {
-		Gun->AimGunAtTarget(OutHit.Location, DeltaTime, SecondGripPointLoc, SecondGripPointRot);
+		Gun->AimGunAtTarget(OutHit.Location, DeltaTime, FirstPersonCameraComponent->GetForwardVector(), SecondGripPointLoc, SecondGripPointRot);
 	}
 	else {
-		Gun->AimGunAtTarget(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000, DeltaTime, SecondGripPointLoc, SecondGripPointRot);
+		Gun->AimGunAtTarget(FirstPersonCameraComponent->GetComponentLocation() + FirstPersonCameraComponent->GetForwardVector() * 50000, DeltaTime, FirstPersonCameraComponent->GetForwardVector(), SecondGripPointLoc, SecondGripPointRot);
 	}
 }
 

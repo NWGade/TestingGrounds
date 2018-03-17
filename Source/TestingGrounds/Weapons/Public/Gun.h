@@ -85,10 +85,10 @@ public:
 	UAnimInstance* GetAnimInstance();
 
 	UFUNCTION(BlueprintCallable, Category = "Aiming")
-	void AimGunAtTarget(FVector Target, float DeltaTime, FVector & SecondGripPointLoc, FRotator & SecondGripPointRot);
+	void AimGunAtTarget(FVector Target, float DeltaTime, FVector ForwardDirection, FVector & SecondGripPointLoc, FRotator & SecondGripPointRot);
 
 	UFUNCTION(BlueprintCallable, Category = "Gun")
-	void SetSecondGripPointLocAndRot(FVector & SecondGripPointLoc, FRotator & SecondGripPointRot);
+	void SetSecondGripPointLocAndRot(FVector ForwardDirection, FVector & SecondGripPointLoc, FRotator & SecondGripPointRot);
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SetDefaultSpawnRotation();
