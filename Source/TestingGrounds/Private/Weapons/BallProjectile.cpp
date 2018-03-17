@@ -1,10 +1,10 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
-#include "Weapons/Public/BallProjectile.h"
+#include "Weapons/BallProjectile.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Weapons/Public/BallDamageType.h"
+#include "Weapons/BallDamageType.h"
 
 ABallProjectile::ABallProjectile() 
 {

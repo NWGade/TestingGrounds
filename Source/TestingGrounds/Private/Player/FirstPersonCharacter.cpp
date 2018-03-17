@@ -1,8 +1,8 @@
 // Copyright 1998-2017 Epic Games, Inc. All Rights Reserved.
 
-#include "Player/Public/FirstPersonCharacter.h"
-#include "Weapons/Public/Gun.h"
-#include "Weapons/Public/BallProjectile.h"
+#include "Player/FirstPersonCharacter.h"
+#include "Weapons/Gun.h"
+#include "Weapons/BallProjectile.h"
 #include "Engine/World.h"
 #include "Engine/EngineTypes.h"
 #include "Animation/AnimInstance.h"

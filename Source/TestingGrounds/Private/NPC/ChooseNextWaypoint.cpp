@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "NPC/Public/ChooseNextWaypoint.h"
+#include "NPC/ChooseNextWaypoint.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "NPC/Public/PatrolRoute.h"
+#include "NPC/PatrolRoute.h"
 #include "AIController.h"
 
 EBTNodeResult::Type UChooseNextWaypoint::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) {

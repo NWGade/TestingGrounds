@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Player/Public/PlayerCharacter.h"
-#include "Player/Public/FirstPersonCharacter.h"
+#include "Player/PlayerCharacter.h"
+#include "Player/FirstPersonCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/InputSettings.h"
@@ -54,15 +54,15 @@ void APlayerCharacter::BeginPlay()
 		FirstPersonCharacter->SetActorRelativeLocation(-FVector(-39.56f, 1.75f, 64.f));
 	}
 
-	//if (ThirdPersonCharacterBlueprint == NULL) {
-	//	UE_LOG(LogTemp, Warning, TEXT("ThirdPersonCharacter blueprint missing."));
-	//}
-	//else {
-	//	ThirdPersonCharacter = GetWorld()->SpawnActor<ACharacter>(ThirdPersonCharacterBlueprint);
-	//	ThirdPersonCharacter->AttachToComponent(TP_Root, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
-	//	ThirdPersonCharacter->SetActorLocation(this->GetActorLocation());
-	//	ThirdPersonCharacter->Tags.Add("Player");
-	//}
+	if (ThirdPersonCharacterBlueprint == NULL) {
+		UE_LOG(LogTemp, Warning, TEXT("ThirdPersonCharacter blueprint missing."));
+	}
+	else {
+		ThirdPersonCharacter = GetWorld()->SpawnActor<ACharacter>(ThirdPersonCharacterBlueprint);
+		ThirdPersonCharacter->AttachToComponent(TP_Root, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+		ThirdPersonCharacter->SetActorLocation(this->GetActorLocation());
+		ThirdPersonCharacter->Tags.Add("Player");
+	}
 	
 }
 
