@@ -71,10 +71,6 @@ public:
 	/** Speed of the rotation when adapting the direction pointed by the gun to aim at target (this is purely graphical). */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
 	float RotationSpeed;
-
-	/** Retrieve Idle rotation of the left hand in Idle animation to grip the hand correctly to the gun. */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
-	FRotator LeftHandIdleRotation;
 		
 public:
 	/** Fires a projectile. */

@@ -168,10 +168,6 @@ void AGun::SetSecondGripPointLocAndRot(FVector ForwardDirection, FVector & Secon
 		0.f,
 		(FP_Gun_Root->GetForwardVector().ToOrientationRotator() - ForwardDirection.ToOrientationRotator() - BaseLeftHandRotation).Pitch);
 	SecondGripPointRot.Yaw -= FP_Gun_Root->RelativeRotation.Roll;
-
-	if (GunOwner == EGunOwner::Player) {
-		UE_LOG(LogTemp, Warning, TEXT("SGPRot: %s"), *(FP_Gun_Root->RelativeRotation.ToString()));
-	}
 }
 
 void AGun::SetDefaultSpawnRotation()
