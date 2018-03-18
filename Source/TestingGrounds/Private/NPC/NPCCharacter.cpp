@@ -39,7 +39,7 @@ void ANPCCharacter::BeginPlay()
 
 	//Spawn the TP Character
 	if (ThirdPersonCharacterBlueprint == NULL) {
-		UE_LOG(LogTemp, Warning, TEXT("ThirdPersonCharacter blueprint missing."));
+		UE_LOG(LogTemp, Warning, TEXT("ThirdPersonCharacter blueprint missing on NPCCharacter."));
 	}
 	else {
 		ThirdPersonCharacter = GetWorld()->SpawnActor<ACharacter>(ThirdPersonCharacterBlueprint);

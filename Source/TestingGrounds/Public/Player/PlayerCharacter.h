@@ -37,6 +37,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
 	TSubclassOf<class ACharacter> ThirdPersonCharacterBlueprint;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	bool CrouchButtonDown;
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	float BaseTurnRate;
@@ -48,6 +51,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	/** Handles moving forward/backward */
+	void SetCrouching();
+
+	/** Handles stafing movement, left and right */
+	void SetStopCrouching();
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
@@ -97,7 +106,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	// Called when taking damage
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) override;
+
 	virtual void Landed(const FHitResult & Hit) override;
+
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
+	bool IsDead();
 
 	/** Returns FirstPersonCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
@@ -109,5 +124,7 @@ private:
 	AFirstPersonCharacter * FirstPersonCharacter;
 
 	ACharacter * ThirdPersonCharacter;
+
+	float Health;
 	
 };

@@ -7,6 +7,8 @@
 #include "GameFramework/InputSettings.h"
 #include "Camera/CameraComponent.h"
 
+const float MAX_HEALTH = 100.f;
+const float MIN_HEALTH = 0.f;
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -50,7 +52,7 @@ void APlayerCharacter::BeginPlay()
 
 	//Spawn the FP Character
 	if (FirstPersonCharacterBlueprint == NULL) {
-		UE_LOG(LogTemp, Warning, TEXT("FirstPersonCharacter blueprint missing."));
+		UE_LOG(LogTemp, Warning, TEXT("FirstPersonCharacter blueprint missing on PlayerCharacter."));
 	}
 	else {
 		FirstPersonCharacter = GetWorld()->SpawnActor<AFirstPersonCharacter>(FirstPersonCharacterBlueprint);
@@ -60,7 +62,7 @@ void APlayerCharacter::BeginPlay()
 
 	//Spawn the TP Character
 	if (ThirdPersonCharacterBlueprint == NULL) {
-		UE_LOG(LogTemp, Warning, TEXT("ThirdPersonCharacter blueprint missing."));
+		UE_LOG(LogTemp, Warning, TEXT("ThirdPersonCharacter blueprint missing on PlayerCharacter."));
 	}
 	else {
 		ThirdPersonCharacter = GetWorld()->SpawnActor<ACharacter>(ThirdPersonCharacterBlueprint);
@@ -83,11 +85,28 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 }
 
+float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Health = FMath::Clamp(Health - Damage, MIN_HEALTH, MAX_HEALTH);
+	UE_LOG(LogTemp, Warning, TEXT("Player taking damage has now health %f"), Health);
+	if (IsDead() == true) {
+		/*GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		this->DetachFromControllerPendingDestroy();*/
+	}
+
+	return Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
+}
+
 void APlayerCharacter::Landed(const FHitResult & Hit)
 {
 	Super::Landed(Hit);
 
 	this->MakeNoise(1.f, this, this->GetActorLocation());
+}
+
+bool APlayerCharacter::IsDead()
+{
+	return (Health <= MIN_HEALTH);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -100,6 +119,9 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* InputCom
 
 	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	//InputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::SetCrouching);
+	//InputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::SetStopCrouching);
 
 	//InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &APlayerCharacter::TouchStarted);
 
@@ -175,6 +197,16 @@ void APlayerCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex, const FV
 			}
 		}
 	}
+}
+
+void APlayerCharacter::SetCrouching()
+{
+	CrouchButtonDown = true;
+}
+
+void APlayerCharacter::SetStopCrouching()
+{
+	CrouchButtonDown = false;
 }
 
 void APlayerCharacter::MoveForward(float Value)
