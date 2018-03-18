@@ -50,6 +50,9 @@ void APlayerCharacter::BeginPlay()
 	//Set the tag player on itself
 	this->Tags.Add("Player");
 
+	//Set full life at BeginPlay time
+	Health = MAX_HEALTH;
+
 	//Spawn the FP Character
 	if (FirstPersonCharacterBlueprint == NULL) {
 		UE_LOG(LogTemp, Warning, TEXT("FirstPersonCharacter blueprint missing on PlayerCharacter."));
@@ -58,6 +61,7 @@ void APlayerCharacter::BeginPlay()
 		FirstPersonCharacter = GetWorld()->SpawnActor<AFirstPersonCharacter>(FirstPersonCharacterBlueprint);
 		FirstPersonCharacter->AttachToComponent(FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 		FirstPersonCharacter->SetActorRelativeLocation(-FVector(-39.56f, 1.75f, 64.f));
+		FirstPersonCharacter->Tags.Add("Player");
 	}
 
 	//Spawn the TP Character

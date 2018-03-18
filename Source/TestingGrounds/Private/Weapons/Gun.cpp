@@ -75,20 +75,21 @@ void AGun::OnFire()
 			// spawn the projectile at the muzzle
 			auto Projectile = World->SpawnActor<ABallProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
 			
-			if (Projectile != nullptr && this->GetAttachParentActor() != nullptr) {
+			if (this->GetAttachParentActor()->GetAttachParentActor() != nullptr) {
+				Projectile->SetProjectileOwnerActor(this->GetAttachParentActor()->GetAttachParentActor());
+			}
+
+			if (Projectile != nullptr) {
 				switch (GunOwner)
 				{
 				case EGunOwner::Player:
 					Projectile->SetProjectileOwner(EProjectileOwner::Player);
-					Projectile->SetProjectileOwnerActor(GetAttachParentActor());
 					break;
 				case EGunOwner::NPC:
 					Projectile->SetProjectileOwner(EProjectileOwner::NPC);
-					Projectile->SetProjectileOwnerActor(GetAttachParentActor());
 					break;
 				case EGunOwner::None:
 					Projectile->SetProjectileOwner(EProjectileOwner::None);
-					Projectile->SetProjectileOwnerActor(GetAttachParentActor());
 					break;
 				default:
 					break;
