@@ -93,7 +93,9 @@ void ABallProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 				Destroy();
 				break;
 			case EProjectileOwner::NPC:
-				UGameplayStatics::ApplyPointDamage(OtherActor, BaseDamage, Hit.ImpactNormal, Hit, OtherActor->GetInstigatorController(), ProjectileOwnerActor, BallDamageTypeBlueprint);
+				if (OtherActor->GetAttachParentActor() != nullptr) {
+					UGameplayStatics::ApplyPointDamage(OtherActor->GetAttachParentActor(), BaseDamage, Hit.ImpactNormal, Hit, OtherActor->GetInstigatorController(), ProjectileOwnerActor, BallDamageTypeBlueprint);
+				}
 				Destroy();
 				break;
 			case EProjectileOwner::None:
@@ -103,11 +105,17 @@ void ABallProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 			}
 			return;
 		}
+		UE_LOG(LogTemp, Warning, TEXT("Hitting %s"), *(OtherActor->GetFName().ToString()));
+		if (OtherActor->GetAttachParentActor() != nullptr) { UE_LOG(LogTemp, Warning, TEXT("It's parent is %s"), *(OtherActor->GetAttachParentActor()->GetFName().ToString())); }
 		if (OtherActor->ActorHasTag("NPC")) {
 			switch (ProjectileOwner)
 			{
 			case EProjectileOwner::Player:
-				UGameplayStatics::ApplyPointDamage(OtherActor, BaseDamage, Hit.ImpactNormal, Hit, OtherActor->GetInstigatorController(), ProjectileOwnerActor, BallDamageTypeBlueprint);
+				UE_LOG(LogTemp, Warning, TEXT("I'm here 1"));
+				if (OtherActor->GetAttachParentActor() != nullptr) {
+					UE_LOG(LogTemp, Warning, TEXT("I'm here 2"));
+					UGameplayStatics::ApplyPointDamage(OtherActor->GetAttachParentActor(), BaseDamage, Hit.ImpactNormal, Hit, OtherActor->GetInstigatorController(), ProjectileOwnerActor, BallDamageTypeBlueprint);
+				}
 				Destroy();
 				break;
 			case EProjectileOwner::NPC:

@@ -11,11 +11,11 @@ class TESTINGGROUNDS_API APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 		
-	/** Scene component for First Person View */
+	/** Scene component for First Person Character */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Hierarchy")
 	class USceneComponent* FP_Root;
 
-	/** Scene component for Third Person View */
+	/** Scene component for Third Person Character */
 	UPROPERTY(VisibleDefaultsOnly, Category = "Hierarchy")
 	class USceneComponent* TP_Root;
 

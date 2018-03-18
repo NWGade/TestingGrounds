@@ -61,12 +61,6 @@ void AFirstPersonCharacter::BeginPlay()
 	Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint")); 
 	Gun->SetAnimInstance(Mesh1P->GetAnimInstance());
 	Gun->SetGunOwner(EGunOwner::Player);
-
-	//Setting the player input for 'Fire' here because the Gun is not yet created in the SetupPlayerInputComponent method.
-	//if (EnableTouchscreenMovement(InputComponent) == false)
-	//{
-	//	InputComponent->BindAction("Fire", IE_Pressed, Gun, &AGun::OnFire);
-	//}
 }
 
 void AFirstPersonCharacter::Tick(float DeltaTime)
@@ -74,6 +68,11 @@ void AFirstPersonCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AimAtCrosshair(DeltaTime);
+}
+
+void AFirstPersonCharacter::OnFire()
+{
+	Gun->OnFire();
 }
 
 void AFirstPersonCharacter::AimAtCrosshair(float DeltaTime)

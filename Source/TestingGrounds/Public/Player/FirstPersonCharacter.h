@@ -19,19 +19,15 @@ class AFirstPersonCharacter : public ACharacter
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 	class USkeletalMeshComponent* Mesh1P;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Gun")
+	TSubclassOf<class AGun> GunBlueprint;
+
 public:
 	AFirstPersonCharacter();
-
-	virtual void BeginPlay();
-
-	virtual void Tick(float DeltaTime) override;
 
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FVector GunOffset;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Gun")
-	TSubclassOf<class AGun> GunBlueprint;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gun")
 	FVector SecondGripPointLoc;
@@ -39,7 +35,11 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gun")
 	FRotator SecondGripPointRot;
 
-	FHitResult AimResult;
+	virtual void BeginPlay();
+
+	virtual void Tick(float DeltaTime) override;
+
+	void OnFire();
 
 private:
 	AGun * Gun;
@@ -50,6 +50,8 @@ private:
 	void AimAtCrosshair(float DeltaTime);
 
 public:
+	FHitResult AimResult;
+
 	/** Returns Mesh1P subobject **/
 	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 };

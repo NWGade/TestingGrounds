@@ -16,13 +16,16 @@ APlayerCharacter::APlayerCharacter()
 
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-	//Disable FP collision on capsule
+	// Disable FP collision on capsule
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	// Set Projectile Overlap on capsule collision profile (ECC_GameTraceChannel1 == ECC_Projectile)
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Overlap);
 
-	// set our turn rates for input
+	// Set our turn rates for input
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
+	// Set the root for spawning characters
 	FP_Root = CreateDefaultSubobject<USceneComponent>(TEXT("FP_Root"));
 	FP_Root->SetupAttachment(GetCapsuleComponent());
 	FP_Root->RelativeLocation = FVector(0.f, 0.f, 0.f);
@@ -45,6 +48,7 @@ void APlayerCharacter::BeginPlay()
 	//Set the tag player on itself
 	this->Tags.Add("Player");
 
+	//Spawn the FP Character
 	if (FirstPersonCharacterBlueprint == NULL) {
 		UE_LOG(LogTemp, Warning, TEXT("FirstPersonCharacter blueprint missing."));
 	}
@@ -54,6 +58,7 @@ void APlayerCharacter::BeginPlay()
 		FirstPersonCharacter->SetActorRelativeLocation(-FVector(-39.56f, 1.75f, 64.f));
 	}
 
+	//Spawn the TP Character
 	if (ThirdPersonCharacterBlueprint == NULL) {
 		UE_LOG(LogTemp, Warning, TEXT("ThirdPersonCharacter blueprint missing."));
 	}
@@ -64,6 +69,11 @@ void APlayerCharacter::BeginPlay()
 		ThirdPersonCharacter->Tags.Add("Player");
 	}
 	
+	//Setting the player input for 'Fire' here because the Gun is not yet created in the SetupPlayerInputComponent method.
+	if (EnableTouchscreenMovement(InputComponent) == false)
+	{
+		InputComponent->BindAction("Fire", IE_Pressed, FirstPersonCharacter, &AFirstPersonCharacter::OnFire);
+	}
 }
 
 // Called every frame
@@ -127,7 +137,7 @@ void APlayerCharacter::EndTouch(const ETouchIndex::Type FingerIndex, const FVect
 	}
 	if ((FingerIndex == TouchItem.FingerIndex) && (TouchItem.bMoved == false))
 	{
-		//Gun->OnFire();
+		FirstPersonCharacter->OnFire();
 	}
 	TouchItem.bIsPressed = false;
 }
