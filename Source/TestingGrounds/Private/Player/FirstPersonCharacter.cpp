@@ -66,8 +66,6 @@ void AFirstPersonCharacter::BeginPlay()
 void AFirstPersonCharacter::Tick(float DeltaTime)
 {	
 	Super::Tick(DeltaTime);
-
-	AimAtCrosshair(DeltaTime);
 }
 
 void AFirstPersonCharacter::OnFire()
@@ -75,33 +73,12 @@ void AFirstPersonCharacter::OnFire()
 	Gun->OnFire();
 }
 
-void AFirstPersonCharacter::AimAtCrosshair(float DeltaTime)
+AActor * AFirstPersonCharacter::GetGunActor()
 {
-	FCollisionQueryParams TraceParams(FName(TEXT("VictoryBPTrace::CharacterMeshSocketTrace")), true, this);
-	TraceParams.bTraceComplex = true;
-	TraceParams.bTraceAsyncScene = false;
-	TraceParams.bReturnPhysicalMaterial = false;
-	TArray<AActor *> ActorsToIgnore = { this, this->GetAttachParentActor() };
-	TraceParams.AddIgnoredActors(ActorsToIgnore);
+	return Cast<AActor>(Gun);
+}
 
-	//Re-initialize hit info
-	OutHit = FHitResult(ForceInit);
-
-	//To draw a debug line in editor with the LineTrace.
-	//const FName TraceTag("MyTraceTag");
-	//GetWorld()->DebugDrawTraceTag = TraceTag;
-	//TraceParams.TraceTag = TraceTag;
-
-	if (GetWorld()->LineTraceSingleByChannel(
-		OutHit,
-		Mesh_Root->GetComponentLocation(),
-		(Mesh_Root->GetComponentLocation() + Mesh_Root->GetForwardVector() * 50000),
-		ECC_WorldStatic,
-		TraceParams)
-		) {
-		Gun->AimGunAtTarget(OutHit.Location, DeltaTime, Mesh_Root->GetForwardVector(), SecondGripPointLoc, SecondGripPointRot);
-	}
-	else {
-		Gun->AimGunAtTarget(Mesh_Root->GetComponentLocation() + Mesh_Root->GetForwardVector() * 50000, DeltaTime, Mesh_Root->GetForwardVector(), SecondGripPointLoc, SecondGripPointRot);
-	}
+void AFirstPersonCharacter::AimAtCrosshair(FVector Target, float DeltaTime, FVector ForwardDirection)
+{
+	Gun->AimGunAtTarget(Target, DeltaTime, ForwardDirection, SecondGripPointLoc, SecondGripPointRot);
 }

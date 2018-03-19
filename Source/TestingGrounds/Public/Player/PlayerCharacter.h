@@ -6,6 +6,13 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class EPersonView : uint8
+{
+	FirstPersonView = 1 UMETA(DisplayName = "FirstPersonView"),
+	ThirdPersonView = 2 UMETA(DisplayName = "ThirdPersonView")
+};
+
 UCLASS()
 class TESTINGGROUNDS_API APlayerCharacter : public ACharacter
 {
@@ -27,6 +34,10 @@ class TESTINGGROUNDS_API APlayerCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* ThirdPersonCameraComponent;
 
+	/** Third person camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	class USpringArmComponent* ThirdPersonSpringArmComponent;
+
 public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
@@ -36,6 +47,16 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
 	TSubclassOf<class ACharacter> ThirdPersonCharacterBlueprint;
+
+	/** Person view at BeginPlay time. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	EPersonView StartingView;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	bool Aiming;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
+	bool Shooting;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	bool CrouchButtonDown;
@@ -51,6 +72,18 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void ChangePersonView();
+
+	void RefreshPersonView();
+
+	void AimAtCrosshair(float DeltaTime);
+
+	/** Handles moving forward/backward */
+	void SetShooting();
+
+	/** Handles stafing movement, left and right */
+	void SetStopShooting();
 
 	/** Handles moving forward/backward */
 	void SetCrouching();
@@ -111,6 +144,8 @@ public:
 
 	virtual void Landed(const FHitResult & Hit) override;
 
+	void OnFire();
+
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	bool IsDead();
 
@@ -124,6 +159,10 @@ private:
 	AFirstPersonCharacter * FirstPersonCharacter;
 
 	ACharacter * ThirdPersonCharacter;
+	
+	EPersonView PersonView;
+
+	FHitResult OutHit;
 
 	float Health;
 	

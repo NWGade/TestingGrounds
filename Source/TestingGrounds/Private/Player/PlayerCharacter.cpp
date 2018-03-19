@@ -4,8 +4,10 @@
 #include "Player/FirstPersonCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
-#include "GameFramework/InputSettings.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/InputSettings.h"
+#include "Kismet/GameplayStatics.h"
 
 const float MAX_HEALTH = 100.f;
 const float MIN_HEALTH = 0.f;
@@ -27,6 +29,9 @@ APlayerCharacter::APlayerCharacter()
 	BaseTurnRate = 45.f;
 	BaseLookUpRate = 45.f;
 
+	// Set default start view
+	StartingView = EPersonView::FirstPersonView;
+
 	// Set the root for spawning characters
 	FP_Root = CreateDefaultSubobject<USceneComponent>(TEXT("FP_Root"));
 	FP_Root->SetupAttachment(GetCapsuleComponent());
@@ -40,6 +45,18 @@ APlayerCharacter::APlayerCharacter()
 	FirstPersonCameraComponent->SetupAttachment(FP_Root);
 	FirstPersonCameraComponent->RelativeLocation = FVector(-39.56f, 1.75f, 64.f); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
+
+	// Create a ThirdPersonSpringArmComponent	
+	ThirdPersonSpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("ThirdPersonSpringArm"));
+	ThirdPersonSpringArmComponent->SetupAttachment(TP_Root);
+	ThirdPersonSpringArmComponent->RelativeLocation = FVector(0.f, 0.f, 100.f); // Position the camera
+	ThirdPersonSpringArmComponent->TargetArmLength = 300.f;
+	ThirdPersonSpringArmComponent->bUsePawnControlRotation = true;
+
+	// Create a ThirdPersonCameraComponent	
+	ThirdPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
+	ThirdPersonCameraComponent->SetupAttachment(ThirdPersonSpringArmComponent);
+	ThirdPersonCameraComponent->RelativeLocation = FVector(0.f, 0.f, 30.f); // Position the camera
 }
 
 // Called when the game starts or when spawned
@@ -49,6 +66,9 @@ void APlayerCharacter::BeginPlay()
 	
 	//Set the tag player on itself
 	this->Tags.Add("Player");
+
+	//Set start view as PersonView
+	PersonView = StartingView;
 
 	//Set full life at BeginPlay time
 	Health = MAX_HEALTH;
@@ -71,15 +91,19 @@ void APlayerCharacter::BeginPlay()
 	else {
 		ThirdPersonCharacter = GetWorld()->SpawnActor<ACharacter>(ThirdPersonCharacterBlueprint);
 		ThirdPersonCharacter->AttachToComponent(TP_Root, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
-		ThirdPersonCharacter->SetActorLocation(this->GetActorLocation());
+		ThirdPersonCharacter->SetActorRelativeLocation(FVector(0.f,0.f,0.f));
 		ThirdPersonCharacter->Tags.Add("Player");
+		Aiming = true;	// Set for animation purpose.
 	}
 	
 	//Setting the player input for 'Fire' here because the Gun is not yet created in the SetupPlayerInputComponent method.
 	if (EnableTouchscreenMovement(InputComponent) == false)
 	{
-		InputComponent->BindAction("Fire", IE_Pressed, FirstPersonCharacter, &AFirstPersonCharacter::OnFire);
+		InputComponent->BindAction("Fire", IE_Pressed, this, &APlayerCharacter::SetShooting);
+		InputComponent->BindAction("Fire", IE_Released, this, &APlayerCharacter::SetStopShooting);
 	}
+
+	RefreshPersonView();
 }
 
 // Called every frame
@@ -87,6 +111,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (Shooting == true) {
+		OnFire();
+	}
+
+	AimAtCrosshair(DeltaTime);
 }
 
 float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -108,9 +137,104 @@ void APlayerCharacter::Landed(const FHitResult & Hit)
 	this->MakeNoise(1.f, this, this->GetActorLocation());
 }
 
+void APlayerCharacter::OnFire()
+{
+	switch (PersonView) {
+	case EPersonView::FirstPersonView:
+		if (FirstPersonCharacter != nullptr) { FirstPersonCharacter->OnFire(); }
+		break;
+	case EPersonView::ThirdPersonView:
+		//if (ThirdPersonCharacter != nullptr) { ThirdPersonCharacter->OnFire(); }	//Not Implemented in cpp yet, use blueprint and boll var Shooting instead
+		break;
+	default:
+		break;
+	}
+}
+
+void APlayerCharacter::SetShooting()
+{
+	Shooting = true;
+}
+
+void APlayerCharacter::SetStopShooting()
+{
+	Shooting = false;
+}
+
 bool APlayerCharacter::IsDead()
 {
 	return (Health <= MIN_HEALTH);
+}
+
+void APlayerCharacter::ChangePersonView()
+{
+	switch (PersonView) {
+	case EPersonView::FirstPersonView:
+		PersonView = EPersonView::ThirdPersonView;
+		break;
+	case EPersonView::ThirdPersonView:
+		PersonView = EPersonView::FirstPersonView;
+		break;
+	default:
+		break;
+	}
+
+	RefreshPersonView();
+}
+
+void APlayerCharacter::RefreshPersonView()
+{
+	if (FirstPersonCharacter != nullptr && ThirdPersonCharacter != nullptr) {
+		switch (PersonView) {
+		case EPersonView::FirstPersonView:
+			FirstPersonCameraComponent->Activate();
+			ThirdPersonCameraComponent->Deactivate();
+			FirstPersonCharacter->SetActorHiddenInGame(false);
+			FirstPersonCharacter->GetGunActor()->SetActorHiddenInGame(false); // This is an inconsistence in editor where hide the attached parent actor doesn't hide its attached children, that's why we hide the attached child actor here.
+			ThirdPersonCharacter->SetActorHiddenInGame(true);
+			break;
+		case EPersonView::ThirdPersonView:
+			FirstPersonCameraComponent->Deactivate();
+			ThirdPersonCameraComponent->Activate();
+			FirstPersonCharacter->SetActorHiddenInGame(true);
+			FirstPersonCharacter->GetGunActor()->SetActorHiddenInGame(true); // See comment above.
+			ThirdPersonCharacter->SetActorHiddenInGame(false);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void APlayerCharacter::AimAtCrosshair(float DeltaTime)
+{
+	FCollisionQueryParams TraceParams(FName(TEXT("VictoryBPTrace::CharacterMeshSocketTrace")), true, this);
+	TraceParams.bTraceComplex = true;
+	TraceParams.bTraceAsyncScene = false;
+	TraceParams.bReturnPhysicalMaterial = false;
+	TArray<AActor *> ActorsToIgnore = { this, FirstPersonCharacter, ThirdPersonCharacter };
+	TraceParams.AddIgnoredActors(ActorsToIgnore);
+
+	//Re-initialize hit info
+	OutHit = FHitResult(ForceInit);
+
+	//To draw a debug line in editor with the LineTrace.
+	//const FName TraceTag("MyTraceTag");
+	//GetWorld()->DebugDrawTraceTag = TraceTag;
+	//TraceParams.TraceTag = TraceTag;
+
+	if (GetWorld()->LineTraceSingleByChannel(
+		OutHit,
+		UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation(),
+		(UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation() + UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector() * 50000),
+		ECC_WorldStatic,
+		TraceParams)
+		) {
+		FirstPersonCharacter->AimAtCrosshair(OutHit.Location, DeltaTime, UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector());
+	}
+	else {
+		FirstPersonCharacter->AimAtCrosshair(UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation() + UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector() * 50000, DeltaTime, UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector());
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -120,6 +244,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* InputCom
 {
 	// set up gameplay key bindings
 	check(InputComponent);
+
+	InputComponent->BindAction("ChangeView", IE_Pressed, this, &APlayerCharacter::ChangePersonView);
 
 	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
