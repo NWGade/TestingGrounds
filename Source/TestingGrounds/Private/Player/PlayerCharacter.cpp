@@ -6,12 +6,16 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/InputSettings.h"
 #include "Kismet/GameplayStatics.h"
 
 const float MAX_HEALTH = 100.f;
 const float MIN_HEALTH = 0.f;
+const float JOG_MOVE_SPEED = 1000.f;
+const float AIMING_MOVE_SPEED = 500.f;
+const float CROUCH_MOVE_SPEED = 300.f;
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -100,10 +104,11 @@ void APlayerCharacter::BeginPlay()
 	//Setting the player input for 'Fire' here because the Gun is not yet created in the SetupPlayerInputComponent method.
 	if (EnableTouchscreenMovement(InputComponent) == false)
 	{
-		InputComponent->BindAction("Fire", IE_Pressed, this, &APlayerCharacter::SetShooting);
-		InputComponent->BindAction("Fire", IE_Released, this, &APlayerCharacter::SetStopShooting);
+		InputComponent->BindAction("Fire", IE_Pressed, this, &APlayerCharacter::Shoot);
+		InputComponent->BindAction("Fire", IE_Released, this, &APlayerCharacter::StopShooting);
 	}
 
+	RefreshMoveSpeed();
 	RefreshPersonView();
 }
 
@@ -152,21 +157,6 @@ void APlayerCharacter::OnFire()
 	}
 }
 
-void APlayerCharacter::SetShooting()
-{
-	Shooting = true;
-}
-
-void APlayerCharacter::SetStopShooting()
-{
-	Shooting = false;
-}
-
-bool APlayerCharacter::IsDead()
-{
-	return (Health <= MIN_HEALTH);
-}
-
 void APlayerCharacter::ChangePersonView()
 {
 	switch (PersonView) {
@@ -201,7 +191,7 @@ void APlayerCharacter::RefreshPersonView()
 			FirstPersonCharacter->SetActorHiddenInGame(true);
 			FirstPersonCharacter->GetGunActor()->SetActorHiddenInGame(true); // See comment above.
 			ThirdPersonCharacter->SetActorHiddenInGame(false);
-			FirstPersonCharacter->GetGunActor()->SetActorHiddenInGame(false); // This is an inconsistence in editor where hide the attached parent actor doesn't hide its attached children, that's why we hide the attached child actor here.
+			ThirdPersonCharacter->GetGunActor()->SetActorHiddenInGame(false); // See comment above.
 			break;
 		default:
 			break;
@@ -260,6 +250,25 @@ void APlayerCharacter::AimAtCrosshair(float DeltaTime)
 	}
 }
 
+bool APlayerCharacter::IsDead()
+{
+	return (Health <= MIN_HEALTH);
+}
+
+void APlayerCharacter::RefreshMoveSpeed()
+{
+	if (CrouchButtonDown == true) {
+		GetCharacterMovement()->MaxWalkSpeed = CROUCH_MOVE_SPEED;
+	}
+	else if (Aiming == true) {
+		GetCharacterMovement()->MaxWalkSpeed = AIMING_MOVE_SPEED;
+	}
+	else {
+		GetCharacterMovement()->MaxWalkSpeed = JOG_MOVE_SPEED;
+	}
+
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -273,8 +282,11 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	InputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	//InputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::SetCrouching);
-	//InputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::SetStopCrouching);
+	InputComponent->BindAction("Jog", IE_Pressed, this, &APlayerCharacter::Jog);
+	InputComponent->BindAction("Jog", IE_Released, this, &APlayerCharacter::StopJogging);
+
+	InputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::Crouch);
+	InputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::StopCrouching);
 
 	//InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &APlayerCharacter::TouchStarted);
 
@@ -352,14 +364,42 @@ void APlayerCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex, const FV
 	}
 }
 
-void APlayerCharacter::SetCrouching()
+void APlayerCharacter::Jog()
 {
-	CrouchButtonDown = true;
+	Aiming = false;
+	RefreshMoveSpeed();
 }
 
-void APlayerCharacter::SetStopCrouching()
+void APlayerCharacter::StopJogging()
+{
+	Aiming = true;
+	RefreshMoveSpeed();
+}
+
+void APlayerCharacter::Shoot()
+{
+	if (Aiming == true) {
+		Shooting = true;
+	}
+}
+
+void APlayerCharacter::StopShooting()
+{
+	Shooting = false;
+}
+
+void APlayerCharacter::Crouch()
+{
+	CrouchButtonDown = true;
+	RefreshMoveSpeed();
+	UE_LOG(LogTemp, Warning, TEXT("Crouching"));
+}
+
+void APlayerCharacter::StopCrouching()
 {
 	CrouchButtonDown = false;
+	RefreshMoveSpeed();
+	UE_LOG(LogTemp, Warning, TEXT("Stopped Crouching"));
 }
 
 void APlayerCharacter::MoveForward(float Value)

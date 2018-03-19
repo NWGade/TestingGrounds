@@ -79,17 +79,25 @@ protected:
 
 	void AimAtCrosshair(float DeltaTime);
 
-	/** Handles moving forward/backward */
-	void SetShooting();
+	/** Handles jogging */
+	void Jog();
 
-	/** Handles stafing movement, left and right */
-	void SetStopShooting();
+	/** Handles stop jogging */
+	void StopJogging();
 
-	/** Handles moving forward/backward */
-	void SetCrouching();
+	/** Handles shooting */
+	void Shoot();
 
-	/** Handles stafing movement, left and right */
-	void SetStopCrouching();
+	/** Handles stop shooting */
+	void StopShooting();
+
+	/** Handles crouching */
+	void Crouch();
+
+	/** Handles stop crouching */
+	void StopCrouching();
+
+	void RefreshMoveSpeed();
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);
@@ -165,5 +173,4 @@ private:
 	FHitResult OutHit;
 
 	float Health;
-	
 };
