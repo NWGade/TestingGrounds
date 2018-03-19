@@ -20,7 +20,7 @@ public:
 	ANPCCharacter();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
-	TSubclassOf<class ACharacter> ThirdPersonCharacterBlueprint;
+	TSubclassOf<class AThirdPersonCharacter> ThirdPersonCharacterBlueprint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	bool Aiming;
@@ -39,11 +39,16 @@ public:
 	// Called when taking damage
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) override;
 
+	void OnFire();
+
 	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	bool IsDead();
 
+protected:
+	void AimAtPlayer(float DeltaTime);
+
 private:
-	ACharacter * ThirdPersonCharacter;
+	AThirdPersonCharacter * ThirdPersonCharacter;
 
 	float Health;	
 };

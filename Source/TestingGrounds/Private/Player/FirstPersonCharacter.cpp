@@ -2,12 +2,10 @@
 
 #include "Player/FirstPersonCharacter.h"
 #include "Weapons/Gun.h"
-#include "Weapons/BallProjectile.h"
 #include "Engine/World.h"
 #include "Engine/EngineTypes.h"
 #include "Animation/AnimInstance.h"
 #include "Components/CapsuleComponent.h"
-#include "Components/InputComponent.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "MotionControllerComponent.h"
@@ -78,7 +76,7 @@ AActor * AFirstPersonCharacter::GetGunActor()
 	return Cast<AActor>(Gun);
 }
 
-void AFirstPersonCharacter::AimAtCrosshair(FVector Target, float DeltaTime, FVector ForwardDirection)
+void AFirstPersonCharacter::AimAtTarget(FVector Target, float DeltaTime, FVector ForwardDirection)
 {
 	Gun->AimGunAtTarget(Target, DeltaTime, ForwardDirection, SecondGripPointLoc, SecondGripPointRot);
 }

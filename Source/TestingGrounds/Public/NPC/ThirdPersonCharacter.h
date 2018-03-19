@@ -11,6 +11,10 @@ class TESTINGGROUNDS_API AThirdPersonCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	/** Pawn mesh of the TP */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	class USkeletalMeshComponent* MeshTP;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Gun")
 	TSubclassOf<class AGun> GunBlueprint;
 
@@ -23,12 +27,12 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
+	UFUNCTION(BlueprintCallable, Category = "Gameplay")
 	void OnFire();
 
-	void AimAtCrosshair(FVector Target, float DeltaTime, FVector ForwardDirection);
+	void PlaceLeftHandOnSecondGripPoint();
+
+	void AimAtTarget(FVector Target, float DeltaTime, FVector ForwardDirection);
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gun")
 	FVector SecondGripPointLoc;

@@ -46,7 +46,7 @@ public:
 	TSubclassOf<class AFirstPersonCharacter> FirstPersonCharacterBlueprint;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Character")
-	TSubclassOf<class ACharacter> ThirdPersonCharacterBlueprint;
+	TSubclassOf<class AThirdPersonCharacter> ThirdPersonCharacterBlueprint;
 
 	/** Person view at BeginPlay time. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
@@ -158,7 +158,7 @@ public:
 private:
 	AFirstPersonCharacter * FirstPersonCharacter;
 
-	ACharacter * ThirdPersonCharacter;
+	AThirdPersonCharacter * ThirdPersonCharacter;
 	
 	EPersonView PersonView;
 

@@ -2,6 +2,7 @@
 
 #include "Player/PlayerCharacter.h"
 #include "Player/FirstPersonCharacter.h"
+#include "NPC/ThirdPersonCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Camera/CameraComponent.h"
@@ -89,7 +90,7 @@ void APlayerCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("ThirdPersonCharacter blueprint missing on PlayerCharacter."));
 	}
 	else {
-		ThirdPersonCharacter = GetWorld()->SpawnActor<ACharacter>(ThirdPersonCharacterBlueprint);
+		ThirdPersonCharacter = GetWorld()->SpawnActor<AThirdPersonCharacter>(ThirdPersonCharacterBlueprint);
 		ThirdPersonCharacter->AttachToComponent(TP_Root, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 		ThirdPersonCharacter->SetActorRelativeLocation(FVector(0.f,0.f,0.f));
 		ThirdPersonCharacter->Tags.Add("Player");
@@ -192,6 +193,7 @@ void APlayerCharacter::RefreshPersonView()
 			FirstPersonCharacter->SetActorHiddenInGame(false);
 			FirstPersonCharacter->GetGunActor()->SetActorHiddenInGame(false); // This is an inconsistence in editor where hide the attached parent actor doesn't hide its attached children, that's why we hide the attached child actor here.
 			ThirdPersonCharacter->SetActorHiddenInGame(true);
+			ThirdPersonCharacter->GetGunActor()->SetActorHiddenInGame(true); // This is an inconsistence in editor where hide the attached parent actor doesn't hide its attached children, that's why we hide the attached child actor here.
 			break;
 		case EPersonView::ThirdPersonView:
 			FirstPersonCameraComponent->Deactivate();
@@ -199,6 +201,7 @@ void APlayerCharacter::RefreshPersonView()
 			FirstPersonCharacter->SetActorHiddenInGame(true);
 			FirstPersonCharacter->GetGunActor()->SetActorHiddenInGame(true); // See comment above.
 			ThirdPersonCharacter->SetActorHiddenInGame(false);
+			FirstPersonCharacter->GetGunActor()->SetActorHiddenInGame(false); // This is an inconsistence in editor where hide the attached parent actor doesn't hide its attached children, that's why we hide the attached child actor here.
 			break;
 		default:
 			break;
@@ -230,10 +233,30 @@ void APlayerCharacter::AimAtCrosshair(float DeltaTime)
 		ECC_WorldStatic,
 		TraceParams)
 		) {
-		FirstPersonCharacter->AimAtCrosshair(OutHit.Location, DeltaTime, UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector());
+		switch (PersonView)
+		{
+		case EPersonView::FirstPersonView:
+			FirstPersonCharacter->AimAtTarget(OutHit.Location, DeltaTime, UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector());
+			break;
+		case EPersonView::ThirdPersonView:
+			ThirdPersonCharacter->AimAtTarget(OutHit.Location, DeltaTime, UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector());
+			break;
+		default:
+			break;
+		}
 	}
 	else {
-		FirstPersonCharacter->AimAtCrosshair(UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation() + UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector() * 50000, DeltaTime, UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector());
+		switch (PersonView)
+		{
+		case EPersonView::FirstPersonView:
+			FirstPersonCharacter->AimAtTarget(UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation() + UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector() * 50000, DeltaTime, UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector());
+			break;
+		case EPersonView::ThirdPersonView:
+			ThirdPersonCharacter->AimAtTarget(UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetCameraLocation() + UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector() * 50000, DeltaTime, UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0)->GetActorForwardVector());
+			break;
+		default:
+			break;
+		}
 	}
 }
 

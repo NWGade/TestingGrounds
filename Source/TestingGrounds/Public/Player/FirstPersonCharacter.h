@@ -27,7 +27,7 @@ public:
 
 	void OnFire();
 
-	void AimAtCrosshair(FVector Target, float DeltaTime, FVector ForwardDirection);
+	void AimAtTarget(FVector Target, float DeltaTime, FVector ForwardDirection);
 
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)

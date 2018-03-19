@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "NPCCharacter.h"
+#include "NPC/ThirdPersonCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Math/UnrealMathUtility.h"
 
@@ -42,7 +43,7 @@ void ANPCCharacter::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("ThirdPersonCharacter blueprint missing on NPCCharacter."));
 	}
 	else {
-		ThirdPersonCharacter = GetWorld()->SpawnActor<ACharacter>(ThirdPersonCharacterBlueprint);
+		ThirdPersonCharacter = GetWorld()->SpawnActor<AThirdPersonCharacter>(ThirdPersonCharacterBlueprint);
 		ThirdPersonCharacter->AttachToComponent(TP_Root, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 		ThirdPersonCharacter->SetActorLocation(this->GetActorLocation());
 		ThirdPersonCharacter->Tags.Add("NPC");
@@ -54,6 +55,18 @@ void ANPCCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (Aiming == true) {
+		AimAtPlayer(DeltaTime);
+	}
+	else if (ThirdPersonCharacter != nullptr) {
+		ThirdPersonCharacter->PlaceLeftHandOnSecondGripPoint();
+	}
+
+	////////////////
+	//*** Useless ?
+	//if (Shooting == true) {
+	//	OnFire();
+	//}
 }
 
 float ANPCCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -68,8 +81,23 @@ float ANPCCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, A
 	return Super::TakeDamage(Damage, DamageEvent, EventInstigator, DamageCauser);
 }
 
+void ANPCCharacter::OnFire()
+{
+	if (ThirdPersonCharacter != nullptr) {
+		ThirdPersonCharacter->OnFire();
+	}
+}
+
 bool ANPCCharacter::IsDead()
 {
 	return (Health <= MIN_HEALTH);
+}
+
+void ANPCCharacter::AimAtPlayer(float DeltaTime)
+{
+	if (ThirdPersonCharacter != nullptr && GetWorld()->GetFirstPlayerController()->GetPawn() != nullptr) {
+		FVector PlayerTarget = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
+		ThirdPersonCharacter->AimAtTarget(PlayerTarget, DeltaTime, PlayerTarget - this->GetActorLocation());
+	}
 }
 

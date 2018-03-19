@@ -86,7 +86,9 @@ void ABallProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 {
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) )
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit : %s"), *(OtherActor->GetFName().ToString()));
 		if (OtherActor->ActorHasTag("Player")) {
+			UE_LOG(LogTemp, Warning, TEXT("Tag 'Player'."));
 			switch (ProjectileOwner)
 			{
 			case EProjectileOwner::Player:
@@ -106,9 +108,11 @@ void ABallProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 			return;
 		}
 		if (OtherActor->ActorHasTag("NPC")) {
+			UE_LOG(LogTemp, Warning, TEXT("Tag 'NPC'."));
 			switch (ProjectileOwner)
 			{
 			case EProjectileOwner::Player:
+				UE_LOG(LogTemp, Warning, TEXT("The hitter is 'Player'"));
 				if (OtherActor->GetAttachParentActor() != nullptr) {
 					UGameplayStatics::ApplyPointDamage(OtherActor->GetAttachParentActor(), BaseDamage, Hit.ImpactNormal, Hit, OtherActor->GetInstigatorController(), ProjectileOwnerActor, BallDamageTypeBlueprint);
 				}
