@@ -79,4 +79,6 @@ AActor * AFirstPersonCharacter::GetGunActor()
 void AFirstPersonCharacter::AimAtTarget(FVector Target, float DeltaTime, FVector ForwardDirection)
 {
 	Gun->AimGunAtTarget(Target, DeltaTime, ForwardDirection, SecondGripPointLoc, SecondGripPointRot);
+	FRotator OutRotator;	// This is just to call the method below, the variable will not be used.
+	Mesh1P->TransformToBoneSpace("hand_r", SecondGripPointLoc, SecondGripPointRot, SecondGripPointLoc, OutRotator);
 }

@@ -11,9 +11,11 @@
 #include "GameFramework/InputSettings.h"
 #include "Kismet/GameplayStatics.h"
 
+const FRotator JOG_PITCH_FACTOR = FRotator(20.f, -45.f, 0.f);
+const float CROUCH_REDUCED_HEIGHT_FACTOR = 80.f;
 const float MAX_HEALTH = 100.f;
 const float MIN_HEALTH = 0.f;
-const float JOG_MOVE_SPEED = 1000.f;
+const float JOG_MOVE_SPEED = 900.f;
 const float AIMING_MOVE_SPEED = 500.f;
 const float CROUCH_MOVE_SPEED = 300.f;
 
@@ -43,7 +45,7 @@ APlayerCharacter::APlayerCharacter()
 	FP_Root->RelativeLocation = FVector(0.f, 0.f, 0.f);
 	TP_Root = CreateDefaultSubobject<USceneComponent>(TEXT("TP_Root"));
 	TP_Root->SetupAttachment(GetCapsuleComponent());
-	TP_Root->RelativeLocation = FVector(0.f, 0.f, 0.f);
+	TP_Root->RelativeLocation = FVector(-70.f, 0.f, 0.f);
 
 	// Create a FirstPersonCameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
@@ -69,6 +71,9 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// Set the tick of this to be called with the last ticking group
+	SetTickGroup(TG_PostUpdateWork);
+
 	//Set the tag player on itself
 	this->Tags.Add("Player");
 
@@ -108,6 +113,7 @@ void APlayerCharacter::BeginPlay()
 		InputComponent->BindAction("Fire", IE_Released, this, &APlayerCharacter::StopShooting);
 	}
 
+	// Inital setup
 	RefreshMoveSpeed();
 	RefreshPersonView();
 }
@@ -117,11 +123,12 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (Shooting == true) {
-		OnFire();
+	if (Aiming == true) {
+		AimAtCrosshair(DeltaTime);
+		if (Shooting == true) {
+			OnFire();
+		}
 	}
-
-	AimAtCrosshair(DeltaTime);
 }
 
 float APlayerCharacter::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
@@ -150,7 +157,6 @@ void APlayerCharacter::OnFire()
 		if (FirstPersonCharacter != nullptr) { FirstPersonCharacter->OnFire(); }
 		break;
 	case EPersonView::ThirdPersonView:
-		//if (ThirdPersonCharacter != nullptr) { ThirdPersonCharacter->OnFire(); }	//Not Implemented in cpp yet, use blueprint and boll var Shooting instead
 		break;
 	default:
 		break;
@@ -211,7 +217,7 @@ void APlayerCharacter::AimAtCrosshair(float DeltaTime)
 	//Re-initialize hit info
 	OutHit = FHitResult(ForceInit);
 
-	//To draw a debug line in editor with the LineTrace.
+	////To draw a debug line in editor with the LineTrace.
 	//const FName TraceTag("MyTraceTag");
 	//GetWorld()->DebugDrawTraceTag = TraceTag;
 	//TraceParams.TraceTag = TraceTag;
@@ -285,7 +291,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* InputCom
 	InputComponent->BindAction("Jog", IE_Pressed, this, &APlayerCharacter::Jog);
 	InputComponent->BindAction("Jog", IE_Released, this, &APlayerCharacter::StopJogging);
 
-	InputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::Crouch);
+	InputComponent->BindAction("Crouch", IE_Pressed, this, &APlayerCharacter::Crouching);
 	InputComponent->BindAction("Crouch", IE_Released, this, &APlayerCharacter::StopCrouching);
 
 	//InputComponent->BindTouch(EInputEvent::IE_Pressed, this, &APlayerCharacter::TouchStarted);
@@ -366,13 +372,16 @@ void APlayerCharacter::TouchUpdate(const ETouchIndex::Type FingerIndex, const FV
 
 void APlayerCharacter::Jog()
 {
+	Shooting = false;
 	Aiming = false;
+	FirstPersonCharacter->SetActorRotation(FirstPersonCharacter->GetActorRotation() + JOG_PITCH_FACTOR);
 	RefreshMoveSpeed();
 }
 
 void APlayerCharacter::StopJogging()
 {
 	Aiming = true;
+	FirstPersonCharacter->SetActorRotation(FirstPersonCharacter->GetActorRotation() - JOG_PITCH_FACTOR);
 	RefreshMoveSpeed();
 }
 
@@ -388,18 +397,19 @@ void APlayerCharacter::StopShooting()
 	Shooting = false;
 }
 
-void APlayerCharacter::Crouch()
+void APlayerCharacter::Crouching()
 {
+
 	CrouchButtonDown = true;
+	FP_Root->SetWorldLocation(FirstPersonCharacter->GetActorLocation() - FirstPersonCharacter->GetActorUpVector()*CROUCH_REDUCED_HEIGHT_FACTOR);
 	RefreshMoveSpeed();
-	UE_LOG(LogTemp, Warning, TEXT("Crouching"));
 }
 
 void APlayerCharacter::StopCrouching()
 {
 	CrouchButtonDown = false;
+	FP_Root->SetWorldLocation(FirstPersonCharacter->GetActorLocation() + FirstPersonCharacter->GetActorUpVector()*CROUCH_REDUCED_HEIGHT_FACTOR);
 	RefreshMoveSpeed();
-	UE_LOG(LogTemp, Warning, TEXT("Stopped Crouching"));
 }
 
 void APlayerCharacter::MoveForward(float Value)

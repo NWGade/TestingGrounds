@@ -43,13 +43,15 @@ void AThirdPersonCharacter::BeginPlay()
 	Gun = GetWorld()->SpawnActor<AGun>(GunBlueprint);
 	Gun->AttachToComponent(MeshTP, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 	Gun->SetAnimInstance(MeshTP->GetAnimInstance());
-	if (this->ActorHasTag("Player")) {
-		Gun->SetGunOwner(EGunOwner::Player);
-	}
-	else if (this->ActorHasTag("NPC")) {
-		Gun->SetGunOwner(EGunOwner::NPC);
-	}
 
+	if (GetAttachParentActor() != nullptr) {
+		if (GetAttachParentActor()->ActorHasTag("Player")) {
+			Gun->SetGunOwner(EGunOwner::Player);
+		}
+		else if (GetAttachParentActor()->ActorHasTag("NPC")) {
+			Gun->SetGunOwner(EGunOwner::NPC);
+		}
+	} else { UE_LOG(LogTemp, Warning, TEXT("nullptr attached parent actor.")); }
 
 	//// Place left hand on second grip point.
 	//PlaceLeftHandOnSecondGripPoint();
@@ -73,6 +75,8 @@ void AThirdPersonCharacter::AimAtTarget(FVector Target, float DeltaTime, FVector
 {
 	if (Gun != nullptr) {
 		Gun->AimGunAtTarget(Target, DeltaTime, ForwardDirection, SecondGripPointLoc, SecondGripPointRot);
+		FRotator OutRotator;	// This is just to call the method below, the variable will not be used.
+		MeshTP->TransformToBoneSpace("hand_r", SecondGripPointLoc, SecondGripPointRot, SecondGripPointLoc, OutRotator);
 	}
 }
 

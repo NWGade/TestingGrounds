@@ -18,6 +18,9 @@ ABallProjectile::ABallProjectile()
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
 
+	// Ignore collision with Person instigator
+
+
 	// Set as root component
 	RootComponent = CollisionComp;
 
@@ -119,9 +122,11 @@ void ABallProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 				Destroy();
 				break;
 			case EProjectileOwner::NPC:
+				UE_LOG(LogTemp, Warning, TEXT("The hitter is 'NPC'"));
 				Destroy();
 				break;
 			case EProjectileOwner::None:
+				UE_LOG(LogTemp, Warning, TEXT("The hitter is 'None'"));
 				break;
 			default:
 				break;

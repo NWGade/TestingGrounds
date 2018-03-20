@@ -21,23 +21,23 @@ class TESTINGGROUNDS_API AGun : public AActor
 
 	/** Root location of the gun to use for transforms. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USceneComponent* FP_Root;
+	class USceneComponent* Root;
 
 	/** Root location of the gun to use for transforms. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USceneComponent* FP_Gun_Root;
+	class USceneComponent* Gun_Root;
 
 	/** Gun mesh: 1st person view (seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USkeletalMeshComponent* FP_Gun;
+	class USkeletalMeshComponent* Gun_Mesh;
 
 	/** Location on gun mesh where projectiles should spawn. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	class USceneComponent* FP_MuzzleLocation;
+	class USceneComponent* MuzzleLocation;
 
 	/** Location on gun mesh where projectiles should spawn. */
 	UPROPERTY(EditAnywhere, Category = "Mesh")
-	class USceneComponent* FP_SecondGripPointLocation;
+	class USceneComponent* SecondGripPointLocation;
 
 public:
 	// Sets default values for this actor's properties
@@ -95,14 +95,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Gun")
 	void SetSecondGripPointLocation(FVector LocationToSet);
 
-	UFUNCTION(BlueprintCallable, Category = "Gun")
-	void RefreshBaseLeftHandRotation();
-
 	EGunOwner GetGunOwner();
 
 private:
 	class UAnimInstance* AnimInstance;
 	FRotator SpawnRotation;
-
-	FRotator BaseLeftHandRotation;
 };

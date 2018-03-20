@@ -92,7 +92,7 @@ protected:
 	void StopShooting();
 
 	/** Handles crouching */
-	void Crouch();
+	void Crouching();
 
 	/** Handles stop crouching */
 	void StopCrouching();
