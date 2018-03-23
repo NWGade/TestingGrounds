@@ -49,5 +49,7 @@ private:
 
 public:
 	AActor * GetGunActor();
+
+	void SetWeaponProjectileActorsToIgnore(TArray<AActor*> ActorsToSet);
 	
 };

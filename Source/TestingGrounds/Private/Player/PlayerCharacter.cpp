@@ -113,6 +113,13 @@ void APlayerCharacter::BeginPlay()
 		InputComponent->BindAction("Fire", IE_Released, this, &APlayerCharacter::StopShooting);
 	}
 
+	// Set the actors to ignore for collisions, doing it here because pointers to the actors below are not set at constructor time.
+	if (FirstPersonCharacter != nullptr && ThirdPersonCharacter != nullptr) {
+		CollisionActorsToIgnore = { this, FirstPersonCharacter, ThirdPersonCharacter };
+		FirstPersonCharacter->SetWeaponProjectileActorsToIgnore(CollisionActorsToIgnore);
+		ThirdPersonCharacter->SetWeaponProjectileActorsToIgnore(CollisionActorsToIgnore);
+	}
+
 	// Inital setup
 	RefreshMoveSpeed();
 	RefreshPersonView();
@@ -211,8 +218,7 @@ void APlayerCharacter::AimAtCrosshair(float DeltaTime)
 	TraceParams.bTraceComplex = true;
 	TraceParams.bTraceAsyncScene = false;
 	TraceParams.bReturnPhysicalMaterial = false;
-	TArray<AActor *> ActorsToIgnore = { this, FirstPersonCharacter, ThirdPersonCharacter };
-	TraceParams.AddIgnoredActors(ActorsToIgnore);
+	TraceParams.AddIgnoredActors(CollisionActorsToIgnore);
 
 	//Re-initialize hit info
 	OutHit = FHitResult(ForceInit);

@@ -76,6 +76,13 @@ AActor * AFirstPersonCharacter::GetGunActor()
 	return Cast<AActor>(Gun);
 }
 
+void AFirstPersonCharacter::SetWeaponProjectileActorsToIgnore(TArray<AActor*> ActorsToSet)
+{
+	if (Gun != nullptr) {
+		Gun->SetProjectileActorsToIgnore(ActorsToSet);
+	}
+}
+
 void AFirstPersonCharacter::AimAtTarget(FVector Target, float DeltaTime, FVector ForwardDirection)
 {
 	Gun->AimGunAtTarget(Target, DeltaTime, ForwardDirection, SecondGripPointLoc, SecondGripPointRot);

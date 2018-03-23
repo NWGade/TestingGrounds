@@ -28,6 +28,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay")
 	bool Shooting;
 
+	TArray<AActor *> CollisionActorsToIgnore;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

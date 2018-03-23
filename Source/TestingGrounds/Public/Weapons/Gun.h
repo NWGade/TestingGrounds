@@ -95,9 +95,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Gun")
 	void SetSecondGripPointLocation(FVector LocationToSet);
 
+	void SetProjectileActorsToIgnore(TArray<AActor *> ActorsToSet);
+
 	EGunOwner GetGunOwner();
 
 private:
 	class UAnimInstance* AnimInstance;
 	FRotator SpawnRotation;
+	TArray<AActor *> ProjectileActorsToIgnore;
 };

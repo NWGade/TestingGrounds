@@ -18,9 +18,6 @@ ABallProjectile::ABallProjectile()
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
 
-	// Ignore collision with Person instigator
-
-
 	// Set as root component
 	RootComponent = CollisionComp;
 
@@ -48,6 +45,8 @@ void ABallProjectile::BeginPlay()
 	Super::BeginPlay();
 
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ABallProjectile::OnBeginOverlap);		// set up a notification for when this component overlaps something. Doing it here because OnComponentBeginOverlap.AddDynamic can't work at constructor time (but OnComponentHit can...)
+
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::NoCollision); // Disabling collision temporary until all the setup is done.
 }
 
 void ABallProjectile::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -83,6 +82,12 @@ void ABallProjectile::SetProjectileOwner(EProjectileOwner OwnerToSet)
 void ABallProjectile::SetProjectileOwnerActor(AActor * ActorToSet)
 {
 	ProjectileOwnerActor = ActorToSet;
+}
+
+void ABallProjectile::SetupCollision(TArray<AActor*> ActorsToSet)
+{
+	CollisionComp->MoveIgnoreActors = ActorsToSet;
+	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
 void ABallProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)

@@ -18,6 +18,8 @@ class ABallProjectile : public AActor
 {
 	GENERATED_BODY()
 
+ //Constructor variables
+
 	/** Sphere collision component */
 	UPROPERTY(VisibleDefaultsOnly, Category=Projectile)
 	class USphereComponent* CollisionComp;
@@ -30,6 +32,8 @@ public:
 	ABallProjectile();
 
 	virtual void BeginPlay();
+
+	void SetupCollision(TArray<AActor*> ActorsToSet);
 
 	/** called when projectile hits something */
 	UFUNCTION()

@@ -163,6 +163,8 @@ public:
 	/** Returns FirstPersonCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetThirdPersonCameraComponent() const { return ThirdPersonCameraComponent; }
 
+	TArray<AActor *> CollisionActorsToIgnore;
+
 private:
 	AFirstPersonCharacter * FirstPersonCharacter;
 

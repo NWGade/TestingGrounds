@@ -76,12 +76,13 @@ void AGun::OnFire()
 		{
 			// spawn the projectile at the muzzle
 			auto Projectile = World->SpawnActor<ABallProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
-			
-			if (this->GetAttachParentActor()->GetAttachParentActor() != nullptr) {
-				Projectile->SetProjectileOwnerActor(this->GetAttachParentActor()->GetAttachParentActor());
-			}
 
 			if (Projectile != nullptr) {
+				if (this->GetAttachParentActor()->GetAttachParentActor() != nullptr) {
+					Projectile->SetProjectileOwnerActor(this->GetAttachParentActor()->GetAttachParentActor());
+				}
+				Projectile->SetupCollision(ProjectileActorsToIgnore);
+
 				switch (GunOwner)
 				{
 				case EGunOwner::Player:
@@ -180,6 +181,11 @@ void AGun::SetSecondGripPointLocation(FVector LocationToSet)
 {
 	SecondGripPointLocation->SetRelativeLocation(LocationToSet);
 	return;
+}
+
+void AGun::SetProjectileActorsToIgnore(TArray<AActor*> ActorsToSet)
+{
+	ProjectileActorsToIgnore = ActorsToSet;
 }
 
 EGunOwner AGun::GetGunOwner()

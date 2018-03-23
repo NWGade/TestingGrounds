@@ -48,6 +48,12 @@ void ANPCCharacter::BeginPlay()
 		ThirdPersonCharacter->SetActorLocation(this->GetActorLocation());
 		ThirdPersonCharacter->Tags.Add("NPC");
 	}
+
+	// Set the actors to ignore for collisions
+	if (ThirdPersonCharacter != nullptr) {
+		CollisionActorsToIgnore = { this, ThirdPersonCharacter };
+		ThirdPersonCharacter->SetWeaponProjectileActorsToIgnore(CollisionActorsToIgnore);
+	}
 }
 
 // Called every frame

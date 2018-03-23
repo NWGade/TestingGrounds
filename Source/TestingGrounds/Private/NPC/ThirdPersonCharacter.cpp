@@ -80,6 +80,13 @@ void AThirdPersonCharacter::AimAtTarget(FVector Target, float DeltaTime, FVector
 	}
 }
 
+void AThirdPersonCharacter::SetWeaponProjectileActorsToIgnore(TArray<AActor*> ActorsToSet)
+{
+	if (Gun != nullptr) {
+		Gun->SetProjectileActorsToIgnore(ActorsToSet);
+	}
+}
+
 AActor * AThirdPersonCharacter::GetGunActor()
 {
 	return Cast<AActor>(Gun);
