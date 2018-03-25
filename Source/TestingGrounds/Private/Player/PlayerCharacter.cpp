@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Player/PlayerCharacter.h"
-#include "Player/FirstPersonCharacter.h"
-#include "NPC/ThirdPersonCharacter.h"
+#include "Characters/FirstPersonCharacter.h"
+#include "Characters/ThirdPersonCharacter.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "Camera/CameraComponent.h"
@@ -15,7 +15,7 @@ const FRotator JOG_PITCH_FACTOR = FRotator(20.f, -45.f, 0.f);
 const float CROUCH_REDUCED_HEIGHT_FACTOR = 80.f;
 const float MAX_HEALTH = 100.f;
 const float MIN_HEALTH = 0.f;
-const float JOG_MOVE_SPEED = 900.f;
+const float JOG_MOVE_SPEED = 1100.f;
 const float AIMING_MOVE_SPEED = 500.f;
 const float CROUCH_MOVE_SPEED = 300.f;
 
@@ -91,7 +91,7 @@ void APlayerCharacter::BeginPlay()
 		FirstPersonCharacter = GetWorld()->SpawnActor<AFirstPersonCharacter>(FirstPersonCharacterBlueprint);
 		FirstPersonCharacter->AttachToComponent(FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 		FirstPersonCharacter->SetActorRelativeLocation(-FVector(-39.56f, 1.75f, 64.f));
-		FirstPersonCharacter->Tags.Add("Player");
+		FirstPersonCharacter->SetHierarchyOwner(EPersonCharacterOwner::Player);
 	}
 
 	//Spawn the TP Character
@@ -102,7 +102,7 @@ void APlayerCharacter::BeginPlay()
 		ThirdPersonCharacter = GetWorld()->SpawnActor<AThirdPersonCharacter>(ThirdPersonCharacterBlueprint);
 		ThirdPersonCharacter->AttachToComponent(TP_Root, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
 		ThirdPersonCharacter->SetActorRelativeLocation(FVector(0.f,0.f,0.f));
-		ThirdPersonCharacter->Tags.Add("Player");
+		ThirdPersonCharacter->SetHierarchyOwner(EPersonCharacterOwner::Player);
 		Aiming = true;	// Set for animation purpose.
 	}
 	
@@ -194,17 +194,17 @@ void APlayerCharacter::RefreshPersonView()
 			FirstPersonCameraComponent->Activate();
 			ThirdPersonCameraComponent->Deactivate();
 			FirstPersonCharacter->SetActorHiddenInGame(false);
-			FirstPersonCharacter->GetGunActor()->SetActorHiddenInGame(false); // This is an inconsistence in editor where hide the attached parent actor doesn't hide its attached children, that's why we hide the attached child actor here.
+			FirstPersonCharacter->GetWeaponActor()->SetActorHiddenInGame(false); // This is an inconsistence in editor where hide the attached parent actor doesn't hide its attached children, that's why we hide the attached child actor here.
 			ThirdPersonCharacter->SetActorHiddenInGame(true);
-			ThirdPersonCharacter->GetGunActor()->SetActorHiddenInGame(true); // This is an inconsistence in editor where hide the attached parent actor doesn't hide its attached children, that's why we hide the attached child actor here.
+			ThirdPersonCharacter->GetWeaponActor()->SetActorHiddenInGame(true); // This is an inconsistence in editor where hide the attached parent actor doesn't hide its attached children, that's why we hide the attached child actor here.
 			break;
 		case EPersonView::ThirdPersonView:
 			FirstPersonCameraComponent->Deactivate();
 			ThirdPersonCameraComponent->Activate();
 			FirstPersonCharacter->SetActorHiddenInGame(true);
-			FirstPersonCharacter->GetGunActor()->SetActorHiddenInGame(true); // See comment above.
+			FirstPersonCharacter->GetWeaponActor()->SetActorHiddenInGame(true); // See comment above.
 			ThirdPersonCharacter->SetActorHiddenInGame(false);
-			ThirdPersonCharacter->GetGunActor()->SetActorHiddenInGame(false); // See comment above.
+			ThirdPersonCharacter->GetWeaponActor()->SetActorHiddenInGame(false); // See comment above.
 			break;
 		default:
 			break;

@@ -7,12 +7,20 @@
 #include "Gun.generated.h"
 
 UENUM(BlueprintType)
-enum class EGunOwner : uint8
+enum class EWeaponOwner : uint8
 {
 	Player = 1 UMETA(DisplayName = "Player"),
 	NPC = 2 UMETA(DisplayName = "NPC"),
 	None = 0 UMETA(DisplayName = "None")
 };
+UENUM(BlueprintType)
+enum class EWeaponViewType : uint8
+{
+	FirstPerson = 1 UMETA(DisplayName = "FirstPerson"),
+	ThirdPerson = 2 UMETA(DisplayName = "ThirdPerson"),
+	None = 0 UMETA(DisplayName = "None")
+};
+
 
 UCLASS()
 class TESTINGGROUNDS_API AGun : public AActor
@@ -61,8 +69,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class UAnimMontage* FireAnimation;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
-	EGunOwner GunOwner;
+	EWeaponOwner GunOwner;
+
+	EWeaponViewType WeaponViewType;
 
 	/** Height of the canon by comparison to the grip point. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun")
@@ -89,15 +98,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SetDefaultSpawnRotation();
 
-	UFUNCTION(BlueprintCallable, Category = "Gun")
-	void SetGunOwner(EGunOwner OwnerToSet);
+	void SetGunOwner(EWeaponOwner OwnerToSet);
+
+	void SetWeaponViewType(EWeaponViewType ViewTypeToSet);
 
 	UFUNCTION(BlueprintCallable, Category = "Gun")
 	void SetSecondGripPointLocation(FVector LocationToSet);
 
 	void SetProjectileActorsToIgnore(TArray<AActor *> ActorsToSet);
 
-	EGunOwner GetGunOwner();
+	EWeaponOwner GetGunOwner();
 
 private:
 	class UAnimInstance* AnimInstance;

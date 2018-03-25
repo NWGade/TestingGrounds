@@ -16,7 +16,7 @@ AGun::AGun()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Create empty root component to use for transforms
-	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Roottamère"));
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = Root;
 
 	// Create empty root component to use for transforms
@@ -85,13 +85,13 @@ void AGun::OnFire()
 
 				switch (GunOwner)
 				{
-				case EGunOwner::Player:
+				case EWeaponOwner::Player:
 					Projectile->SetProjectileOwner(EProjectileOwner::Player);
 					break;
-				case EGunOwner::NPC:
+				case EWeaponOwner::NPC:
 					Projectile->SetProjectileOwner(EProjectileOwner::NPC);
 					break;
-				case EGunOwner::None:
+				case EWeaponOwner::None:
 					Projectile->SetProjectileOwner(EProjectileOwner::None);
 					break;
 				default:
@@ -107,7 +107,7 @@ void AGun::OnFire()
 		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 	}
 
-	// try and play a firing animation if specified
+	// try and play a firing animation if specified 
 	if (FireAnimation != NULL)
 	{
 		// Get the animation object for the arms mesh
@@ -116,7 +116,6 @@ void AGun::OnFire()
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
 	}
-
 }
 
 void AGun::SetAnimInstance(UAnimInstance * AnimInstanceToSet)
@@ -172,9 +171,14 @@ void AGun::SetDefaultSpawnRotation()
 	SpawnRotation = MuzzleLocation->GetComponentRotation();
 }
 
-void AGun::SetGunOwner(EGunOwner OwnerToSet)
+void AGun::SetGunOwner(EWeaponOwner OwnerToSet)
 {
 	GunOwner = OwnerToSet;
+}
+
+void AGun::SetWeaponViewType(EWeaponViewType ViewTypeToSet)
+{
+	WeaponViewType = ViewTypeToSet;
 }
 
 void AGun::SetSecondGripPointLocation(FVector LocationToSet)
@@ -188,7 +192,7 @@ void AGun::SetProjectileActorsToIgnore(TArray<AActor*> ActorsToSet)
 	ProjectileActorsToIgnore = ActorsToSet;
 }
 
-EGunOwner AGun::GetGunOwner()
+EWeaponOwner AGun::GetGunOwner()
 {
 	return GunOwner;
 }
