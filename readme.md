@@ -1,2 +1,2 @@
-Procedural FPS based on the Udemy course "Complete Unreal C++ Course".
+Procedural FPS.
 Based on FPS and TPC Unreal starter pack, plus Animpak for the store.
